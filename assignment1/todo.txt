@@ -2,6 +2,11 @@ TODO
 
 - beeld printen in alleen groenwaardes
 	* groenwaardes per punt bepalen
+		+ iets als:
+			for(int i = 0; i < rgb.length; i++){
+				greenval[i] = g(rgb[i]);			
+			}
+
 	* iets met x en y as <.<
 
 - histogram maken
