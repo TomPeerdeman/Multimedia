@@ -20,7 +20,7 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 	
 	public int[] rgb;			// the array of integers
 	public Size imageSize;
-	public Paint p;
+	public Paint p, black;
 	
 	private int binwidth = 256;
 	private int avgGreenValue;
@@ -32,7 +32,6 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		progress += 20;
 		progress = (int) Math.pow(2, (int) (progress / 32));
 		binwidth = 256 / progress;
-		Log.d("DEBUG", "Progress made: " + progress); 
 	}
 	
 	public void onStartTrackingTouch(SeekBar seekBar){
@@ -70,8 +69,6 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		
 		stdDev = (int) Math.sqrt((double) total / 256.0d);
 		
-
-		
 		// Calculate frequency
 		for(int i = 0; i < 256; i++){
 			bins[i] = (int) ((double) bins[i] / (double) arraySize * 100.0d);
@@ -79,40 +76,34 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		
 	}
 	
-	private void axisDraw(Canvas c, float len) {
-		// utility function to draw the coordinate axis in a canvas with length 'len'
-		// the x axis is drawn in red, the y axis in green
-		p.setColor(combine(255,0,0));
-		c.drawLine(0f, 0f, len, 0f, p);
-		p.setColor(combine(0,255,0));
-		c.drawLine(0f, 0f, 0f, len, p);
-		
-	}
-	
 	public void draw(Canvas c) {
 		int w = c.getWidth();
-		int h = c.getHeight();
+		int h = c.getHeight();	
 
 		c.drawColor(Color.GRAY);
 		p.setColor(combine(255, 0, 0));
+		black.setColor(combine(0,0,0));
 		c.drawText("Avg. Green value = " + avgGreenValue, 22, 12, p);
 		c.drawText("Standard Deviation = " + stdDev, 22, 27, p);
 		c.drawText("Median value = " + binwidth, 182, 12, p);
-		c.translate(10f, 125f);
+		c.translate(32f, 125f);
 		c.scale(1f, -1f);
-		
-		c.drawLine(0, 0, w-64f, 0, p);
-		
-		
+		c.drawLine(0, 0, w-64f, 0, black);
+		c.drawLine(0, 0, 0, 90f, black);
+		p.setColor(combine(0, 255, 0));
 		for(int i = 0, j = 0; i < 256; i = i + binwidth, j++){
 			if(bins[j] > 0){
-				c.drawLine(i, 0, i, bins[j],p);
-				c.drawLine(i, bins[j], i+binwidth, bins[j],p);
-				c.drawLine(i+binwidth, 0, i+binwidth, bins[j],p);
+				c.drawRect(i, bins[j], i+binwidth, 0, p);
+				c.drawLine(i, 0, i, bins[j],black);
+				c.drawLine(i, bins[j], i+binwidth, bins[j],black);
+				c.drawLine(i+binwidth, 0, i+binwidth, bins[j],black);
 			}
 		}
+		p.setColor(combine(255, 0, 0));
 		c.scale(1f, -1f);
-		c.drawText("0                   64                  128                  192                 255", 0, 12, p);
+		c.drawText("0                  64                  128                 192                255", -5, 12, p);
+		Log.d("DEBUG", "canvas w = " + w + " h = " + h); // this writes to the LogCat that can be read on your PC in
+																				// the phone is connected
 	}
 	
 	/*
@@ -131,9 +122,7 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		seekBar.setMax(255);
 		seekBar.setOnSeekBarChangeListener(this);
 	}
-	
-	
-	
+		
 	/*
 	 * Below are some convenience methods,
 	 * like grabbing colors and decoding.
@@ -158,26 +147,6 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
     private int combine(int r, int g, int b) {
     	 return 0xff000000 | (r << 16) | (g << 8) | b;
     }
-    
-    
-    /*
-     * Draw the rgb image onto the canvas
-     */
-    private void drawImage(Canvas c) {
-    	c.save();
-    	
-		//c.scale(c.getWidth(), c.getHeight()); // Note: turn to 1x1
-		//c.rotate(90, 0.5f, 0.5f); // Note: rotate around half
-		//c.scale(1.0f/imageSize.width, 1.0f/imageSize.height); // Note: scale to image sizes 
-		
-		//c.translate(10f,5f);
-		axisDraw(c, 100f);
-		
-		c.drawBitmap(rgb, 0, imageSize.width, 0f, 0f, imageSize.width, imageSize.height, true, null);
-		c.restore();
-    }
-    
-    
     
     /*
      * Decode the incoming data (YUV format) to a red-green-blue format
@@ -214,6 +183,7 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
     
 	public DrawCamera() {
 		p = new Paint();
+		black = new Paint();
 		greenValues = new int[256];
 		bins = new int[256];
 	}
