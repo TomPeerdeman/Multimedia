@@ -5,7 +5,8 @@ TODO
 	* iets met x en y as <.<
 
 - histogram maken
-	* aantal bins bepalen door invoer(slider)
+	* aantal bins bepalen door invoer(seekbar)
+		+ int value = seekBar.getProgress();
 	* binwidth = 256 / bins
 	* standaard 4 bins?
 	* max 256 bins?
