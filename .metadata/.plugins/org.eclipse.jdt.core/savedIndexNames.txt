@@ -1,0 +1,4 @@
+INDEX VERSION 1.126+C:\Documents and Settings\Tom account\Bureaublad\workspace\Multimedia\.metadata\.plugins\org.eclipse.jdt.core
+132620216.index
+1195819569.index
+1895151578.index
