@@ -20,7 +20,7 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 	
 	public int[] rgb;			// the array of integers
 	public Size imageSize;
-	public Paint p;
+	public Paint p, black;
 	
 	private int binwidth = 256;
 	private int[] greenValues;
@@ -81,27 +81,45 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 	public void draw(Canvas c) {
 		int w = c.getWidth();
 		int h = c.getHeight();
+		
+		// here you should draw the histogram. The number of bins should be user selectable.
+		// note that at this point the canvas origin is in the top left corner of the surface 
+		// just below the preview window.
+		
+		// you could translate translate an reflect the coordinate system to make
+		// into a standard coordinate system.
+		
+		// please not that the canvas height is larger then what can be seen on the screen. 
+		// For hints/tips why that is the case..... please mail Rein vd Boomgaard
+		
+		// instead of drawing the histogram below we draw the origin, put some text in it
+		// and draw a line.
+		
 
 		c.drawColor(Color.GRAY);
 		p.setColor(combine(255, 0, 0));
+		black.setColor(combine(0,0,0));
 		c.drawText("Avg. Green value = " + w, 22, 12, p);
 		c.drawText("Standard Deviation = " + h, 22, 27, p);
-		c.drawText("Median value = " + binwidth, 182, 12, p);
-		c.translate(10f, 125f);
+		c.drawText("Median value = " + w, 182, 12, p);
+		c.translate(32f, 125f);
 		c.scale(1f, -1f);
-		
-		c.drawLine(0, 0, w-64f, 0, p);
-		
-		
+		c.drawLine(0, 0, w-64f, 0, black);
+		c.drawLine(0, 0, 0, 90f, black);
+		p.setColor(combine(0, 255, 0));
 		for(int i = 0, j = 0; i < 256; i = i + binwidth, j++){
 			if(bins[j] > 0){
-				c.drawLine(i, 0, i, bins[j],p);
-				c.drawLine(i, bins[j], i+binwidth, bins[j],p);
-				c.drawLine(i+binwidth, 0, i+binwidth, bins[j],p);
+				c.drawRect(i, bins[j], i+binwidth, 0, p);
+				c.drawLine(i, 0, i, bins[j],black);
+				c.drawLine(i, bins[j], i+binwidth, bins[j],black);
+				c.drawLine(i+binwidth, 0, i+binwidth, bins[j],black);
 			}
 		}
+		p.setColor(combine(255, 0, 0));
 		c.scale(1f, -1f);
-		c.drawText("0                   64                  128                  192                 255", 0, 12, p);
+		c.drawText("0                  64                  128                 192                255", -5, 12, p);
+		Log.d("DEBUG", "canvas w = " + w + " h = " + h); // this writes to the LogCat that can be read on your PC in
+																				// the phone is connected
 	}
 	
 	/*
@@ -203,6 +221,7 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
     
 	public DrawCamera() {
 		p = new Paint();
+		black = new Paint();
 		greenValues = new int[256];
 		bins = new int[256];
 	}
