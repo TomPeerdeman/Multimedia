@@ -33,7 +33,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
     /** Handle to the application context, used to e.g. fetch Drawables. */
     private Context mContext;
     private SurfaceHolder mHolder;
-    private Activity activity;
+    public Activity activity;
     
     private SurfaceView cameraShow;
     

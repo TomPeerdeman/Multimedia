@@ -1,14 +1,17 @@
 package assignment1;
 
 import android.graphics.Canvas;
+import uvamult.assignment1.R;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.hardware.Camera.Size;
 import android.util.Log;
 import android.view.View;
 import assignment1.android.CameraView;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 
-public class DrawCamera {
+public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 	
 	/*
 	 * This class is the only file that needs changes to show
@@ -19,19 +22,45 @@ public class DrawCamera {
 	public Size imageSize;
 	public Paint p;
 	
+	private int nbinds = 4;
+	private int[] greenValues;
+	private int[] binds;
+	
+	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
+		progress += 20;
+		progress = (int) Math.pow(2, (int) (progress / 32));
+		Log.d("DEBUG", "Progress made: " + progress); 
+	}
+	
+	public void onStartTrackingTouch(SeekBar seekBar){
+	}
+	
+	public void onStopTrackingTouch(SeekBar seekBar){
+	}
 	
 	public void imageReceived(byte[] data) {
 		// Allocate the image as an array of integers if needed.
 		// Then, decode the raw image data in YUV420SP format into a red-green-blue array (rgb array)
 		// Note that per pixel the RGB values are packed into an integer. See the methods r(), g() and b().
-		
-		if (rgb == null) rgb = new int[imageSize.width*imageSize.height];
+		int arraySize = imageSize.width*imageSize.height;
+		if(rgb == null)rgb = new int[arraySize];
 		decodeYUV420SP(rgb, data);
 		
-		// below you should calculate the histogram of the image
-		// the histogram should be class member so you can access 
-		// it in other methods of this class.
-		// ....
+		for(int i = 0; i < 256; i++){
+			binds[i] = 0;
+			greenValues[i] = 0;
+		}
+		
+		for(int i = 0; i < arraySize; i++){
+			greenValues[g(rgb[i])]++;
+		}
+		
+		int bw = 256/nbinds;
+		
+		for(int i = 0; i < 256; i++){
+			binds[i/bw] += greenValues[i];
+		}
+		
 	}
 	
 	private void axisDraw(Canvas c, float len) {
@@ -60,17 +89,20 @@ public class DrawCamera {
 		
 		// instead of drawing the histogram below we draw the origin, put some text in it
 		// and draw a line.
-		
-		axisDraw(c,100f);
+
 		c.drawColor(Color.GRAY);
 		p.setColor(combine(255, 0, 0));
-		c.drawText("canvas width = "+c.getWidth(), 15, 45, p);
-		c.drawText("canvas heightt = "+c.getHeight(), 15, 60, p);
+
+		c.drawText("canvas width = " + w, 15, 45, p);
+		c.drawText("canvas heightt = " + h, 15, 60, p);
 		
-		c.drawLine(0.0f,0.0f,(float)c.getWidth()-5, c.getHeight(),p);
-	
-		Log.d("DEBUG", "canvas w = " + c.getWidth() + " h = " + c.getHeight()); // this writes to the LogCat that can be read on your PC in
-																				// the phone is connected
+		c.translate(10f, 125f);
+		c.scale(1f, -1f);
+		axisDraw(c,100f);
+		
+		p.setColor(combine(255, 0, 0));
+		c.drawLine(0.0f,0.0f,(float)w-5, h, p);
+
 	}
 	
 	/*
@@ -85,8 +117,9 @@ public class DrawCamera {
 			}
 		});
 		
-		// You can add your own buttons here
-		
+		SeekBar seekBar = (SeekBar) view.activity.findViewById(R.id.seekBar1);
+		seekBar.setMax(255);
+		seekBar.setOnSeekBarChangeListener(this);
 	}
 	
 	
@@ -171,5 +204,7 @@ public class DrawCamera {
     
 	public DrawCamera() {
 		p = new Paint();
+		greenValues = new int[256];
+		binds = new int[256];
 	}
 }
