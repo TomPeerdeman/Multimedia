@@ -10,6 +10,7 @@ import android.view.View;
 import assignment1.android.CameraView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import java.util.Arrays;
 
 public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 	
@@ -23,8 +24,9 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 	public Paint p, black;
 	
 	private int binwidth = 256;
-	private int avgGreenValue;
-	private int stdDev;
+	private int avgGreenValue = 0;
+	private int stdDev = 0;
+	private int median = 0;
 	private int[] greenValues;
 	private int[] bins;
 	private int ymin, ymid1, ymid2, ymax;
@@ -77,6 +79,9 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 			bins[i] = (int) ((double) bins[i] / (double) arraySize * 100.0d);
 		}
 		
+		Arrays.sort(greenValues);
+		median = (greenValues[127] + greenValues[128]) / 2;
+		
 	}
 	
 	public void draw(Canvas c) {
@@ -101,7 +106,7 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		black.setColor(combine(0,0,0));
 		c.drawText("Avg. Green value = " + avgGreenValue, 22, 12, p);
 		c.drawText("Standard Deviation = " + stdDev, 22, 27, p);
-		c.drawText("Median value = " + binwidth, 182, 12, p);
+		c.drawText("Median value = " + median, 182, 12, p);
 		c.drawText("Nbins = " + (256 / binwidth), 182, 27, p);
 		c.translate(32f, 130f);
 		c.scale(1f, -1f);
