@@ -102,7 +102,8 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		c.drawText("Avg. Green value = " + avgGreenValue, 22, 12, p);
 		c.drawText("Standard Deviation = " + stdDev, 22, 27, p);
 		c.drawText("Median value = " + binwidth, 182, 12, p);
-		c.translate(32f, 125f);
+		c.drawText("Nbins = " + (256 / binwidth), 182, 27, p);
+		c.translate(32f, 130f);
 		c.scale(1f, -1f);
 		c.drawLine(0, 0, w-64f, 0, black);
 		c.drawLine(0, 0, 0, 90f, black);
@@ -148,15 +149,7 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 	/*
 	 * Setup your environment
 	 */
-	public void setup(CameraView view) {
-		// Example: add a button to the bottom bar
-		view.addButton("Debug Message", new View.OnClickListener() {
-			public void onClick(View arg) {
-				// Using Log, you can print debug messages to Eclipse
-				Log.d("DrawCamera", "Debug message");
-			}
-		});
-		
+	public void setup(CameraView view) {		
 		SeekBar seekBar = (SeekBar) view.activity.findViewById(R.id.seekBar1);
 		seekBar.setMax(255);
 		seekBar.setOnSeekBarChangeListener(this);
