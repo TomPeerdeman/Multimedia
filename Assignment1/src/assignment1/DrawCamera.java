@@ -23,6 +23,8 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 	public Paint p;
 	
 	private int binwidth = 256;
+	private int avgGreenValue;
+	private int stdDev;
 	private int[] greenValues;
 	private int[] bins;
 	
@@ -52,14 +54,23 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 			greenValues[i] = 0;
 		}
 		
+		long total = 0;
 		for(int i = 0; i < arraySize; i++){
 			greenValues[g(rgb[i])]++;
+			total += g(rgb[i]);
 		}
 		
-		//Calculate total bin value
+		avgGreenValue = (int) ((double) total / (double) arraySize);
+		
+		total = 0;
 		for(int i = 0; i < 256; i++){
+			total += Math.pow((greenValues[i] - avgGreenValue), 2);
 			bins[i/binwidth] += greenValues[i];
 		}
+		
+		stdDev = (int) Math.sqrt((double) total / 256.0d);
+		
+
 		
 		// Calculate frequency
 		for(int i = 0; i < 256; i++){
@@ -84,8 +95,8 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 
 		c.drawColor(Color.GRAY);
 		p.setColor(combine(255, 0, 0));
-		c.drawText("Avg. Green value = " + w, 22, 12, p);
-		c.drawText("Standard Deviation = " + h, 22, 27, p);
+		c.drawText("Avg. Green value = " + avgGreenValue, 22, 12, p);
+		c.drawText("Standard Deviation = " + stdDev, 22, 27, p);
 		c.drawText("Median value = " + binwidth, 182, 12, p);
 		c.translate(10f, 125f);
 		c.scale(1f, -1f);
