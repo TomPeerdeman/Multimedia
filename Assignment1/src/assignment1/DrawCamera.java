@@ -47,6 +47,8 @@ public class DrawCamera {
 	public void draw(Canvas c) {
 		int w = c.getWidth();
 		int h = c.getHeight();
+		int binwidth = 40;
+		int[] bins = {5,9,10,12,18,4,15,3};
 		
 		// here you should draw the histogram. The number of bins should be user selectable.
 		// note that at this point the canvas origin is in the top left corner of the surface 
@@ -61,15 +63,27 @@ public class DrawCamera {
 		// instead of drawing the histogram below we draw the origin, put some text in it
 		// and draw a line.
 		
-		axisDraw(c,100f);
+
 		c.drawColor(Color.GRAY);
 		p.setColor(combine(255, 0, 0));
-		c.drawText("canvas width = "+c.getWidth(), 15, 45, p);
-		c.drawText("canvas heightt = "+c.getHeight(), 15, 60, p);
+		c.drawText("Avg. Green value = " + w, 22, 12, p);
+		c.drawText("Standard Deviation = " + h, 22, 27, p);
+		c.drawText("Median value = " + w, 182, 12, p);
+		c.translate(10f, 125f);
+		c.scale(1f, -1f);
 		
-		c.drawLine(0.0f,0.0f,(float)c.getWidth()-5, c.getHeight(),p);
-	
-		Log.d("DEBUG", "canvas w = " + c.getWidth() + " h = " + c.getHeight()); // this writes to the LogCat that can be read on your PC in
+		c.drawLine(0, 0, w-20f, 0, p);
+		for(int i = 0, j = 0; i < 255; i = i + binwidth, j++){
+			if(bins[j] > 0){
+				c.drawLine(i, 0, i, bins[j],p);
+				c.drawLine(i, bins[j], i+binwidth, bins[j],p);
+				c.drawLine(i+binwidth, 0, i+binwidth, bins[j],p);
+			}
+		}
+		c.drawLine(0, 0, w-20f, 0, p);
+		c.scale(1f, -1f);
+		c.drawText("0                   64                  128                  192                 255", 0, 12, p);
+		Log.d("DEBUG", "canvas w = " + w + " h = " + h); // this writes to the LogCat that can be read on your PC in
 																				// the phone is connected
 	}
 	
