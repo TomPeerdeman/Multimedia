@@ -22,13 +22,14 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 	public Size imageSize;
 	public Paint p;
 	
-	private int nbinds = 4;
+	private int binwidth = 256;
 	private int[] greenValues;
-	private int[] binds;
+	private int[] bins;
 	
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
 		progress += 20;
 		progress = (int) Math.pow(2, (int) (progress / 32));
+		binwidth = 256 / progress;
 		Log.d("DEBUG", "Progress made: " + progress); 
 	}
 	
@@ -47,7 +48,7 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		decodeYUV420SP(rgb, data);
 		
 		for(int i = 0; i < 256; i++){
-			binds[i] = 0;
+			bins[i] = 0;
 			greenValues[i] = 0;
 		}
 		
@@ -55,10 +56,14 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 			greenValues[g(rgb[i])]++;
 		}
 		
-		int bw = 256/nbinds;
-		
+		//Calculate total bin value
 		for(int i = 0; i < 256; i++){
-			binds[i/bw] += greenValues[i];
+			bins[i/binwidth] += greenValues[i];
+		}
+		
+		// Calculate frequency
+		for(int i = 0; i < 256; i++){
+			bins[i] = (int) ((double) bins[i] / (double) arraySize * 100.0d);
 		}
 		
 	}
@@ -92,17 +97,24 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 
 		c.drawColor(Color.GRAY);
 		p.setColor(combine(255, 0, 0));
-
-		c.drawText("canvas width = " + w, 15, 45, p);
-		c.drawText("canvas heightt = " + h, 15, 60, p);
-		
+		c.drawText("Avg. Green value = " + w, 22, 12, p);
+		c.drawText("Standard Deviation = " + h, 22, 27, p);
+		c.drawText("Median value = " + binwidth, 182, 12, p);
 		c.translate(10f, 125f);
 		c.scale(1f, -1f);
-		axisDraw(c,100f);
 		
-		p.setColor(combine(255, 0, 0));
-		c.drawLine(0.0f,0.0f,(float)w-5, h, p);
-
+		c.drawLine(0, 0, w-64f, 0, p);
+		
+		
+		for(int i = 0, j = 0; i < 256; i = i + binwidth, j++){
+			if(bins[j] > 0){
+				c.drawLine(i, 0, i, bins[j],p);
+				c.drawLine(i, bins[j], i+binwidth, bins[j],p);
+				c.drawLine(i+binwidth, 0, i+binwidth, bins[j],p);
+			}
+		}
+		c.scale(1f, -1f);
+		c.drawText("0                   64                  128                  192                 255", 0, 12, p);
 	}
 	
 	/*
@@ -205,6 +217,6 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 	public DrawCamera() {
 		p = new Paint();
 		greenValues = new int[256];
-		binds = new int[256];
+		bins = new int[256];
 	}
 }
