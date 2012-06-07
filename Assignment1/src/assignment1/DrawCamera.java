@@ -27,6 +27,7 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 	private int stdDev;
 	private int[] greenValues;
 	private int[] bins;
+	private int ymin, ymid1, ymid2, ymax;
 	
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
 		progress += 20;
@@ -106,25 +107,42 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		c.drawLine(0, 0, w-64f, 0, black);
 		c.drawLine(0, 0, 0, 90f, black);
 		p.setColor(combine(0, 255, 0));
-		
 		int scale = 100;
 		for(int i = 0; i < (256 / binwidth); i++){
 			if(100.0d / (double) bins[i] < scale){
 				scale = (int) Math.floor(100.0d / (double) bins[i]);
 			}
 		}
-		
+		  
 		for(int i = 0, j = 0; i < 256; i = i + binwidth, j++){
+			if(j==0){
+				ymax = bins[j];
+			}
 			if(bins[j] > 0){
 				c.drawRect(i, bins[j] * scale, i+binwidth, 0, p);
 				c.drawLine(i, 0, i, bins[j] * scale,black);
 				c.drawLine(i, bins[j] * scale, i+binwidth, bins[j] * scale,black);
 				c.drawLine(i+binwidth, 0, i+binwidth, bins[j] * scale,black);
+				if(bins[j] > ymax){
+					ymax = bins[j];
+				}
 			}
 		}
+		
+		ymin = ymax / 4;
+		ymid1 = ymin * 2;
+		ymid2 = ymin * 3;
 		p.setColor(combine(255, 0, 0));
 		c.scale(1f, -1f);
-		c.drawText("0                  64                128               192              255", -5, 12, p);
+		c.drawText("0", -5, 12, p);
+		c.drawText("64", 57, 12, p);
+		c.drawText("128", 120, 12, p);
+		c.drawText("192", 182, 12, p);
+		c.drawText("255", 245, 12, p);
+		c.drawText("" + ymin, -25, -12, p);
+		c.drawText("" + ymid1, -25, -36, p);
+		c.drawText("" + ymid2, -25, -61, p);
+		c.drawText("" + ymax, -25, -85, p);
 	}
 	
 	/*
