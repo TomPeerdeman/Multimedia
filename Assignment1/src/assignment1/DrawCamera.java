@@ -62,12 +62,14 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		avgGreenValue = (int) ((double) total / (double) arraySize);
 		
 		total = 0;
-		for(int i = 0; i < 256; i++){
-			total += Math.pow((greenValues[i] - avgGreenValue), 2);
+		for(int i = 0; i < arraySize; i++){
+			total += Math.pow((g(rgb[i]) - avgGreenValue), 2);
+		}
+		stdDev = (int) Math.sqrt((double) total / arraySize);
+		
+		for(int i = 0; i < 256; i++){	
 			bins[i/binwidth] += greenValues[i];
 		}
-		
-		stdDev = (int) Math.sqrt((double) total / 256.0d);
 		
 		// Calculate frequency
 		for(int i = 0; i < 256; i++){
@@ -104,17 +106,25 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		c.drawLine(0, 0, w-64f, 0, black);
 		c.drawLine(0, 0, 0, 90f, black);
 		p.setColor(combine(0, 255, 0));
+		
+		int scale = 100;
+		for(int i = 0; i < (256 / binwidth); i++){
+			if(100.0d / (double) bins[i] < scale){
+				scale = (int) Math.floor(100.0d / (double) bins[i]);
+			}
+		}
+		
 		for(int i = 0, j = 0; i < 256; i = i + binwidth, j++){
 			if(bins[j] > 0){
-				c.drawRect(i, bins[j], i+binwidth, 0, p);
-				c.drawLine(i, 0, i, bins[j],black);
-				c.drawLine(i, bins[j], i+binwidth, bins[j],black);
-				c.drawLine(i+binwidth, 0, i+binwidth, bins[j],black);
+				c.drawRect(i, bins[j] * scale, i+binwidth, 0, p);
+				c.drawLine(i, 0, i, bins[j] * scale,black);
+				c.drawLine(i, bins[j] * scale, i+binwidth, bins[j] * scale,black);
+				c.drawLine(i+binwidth, 0, i+binwidth, bins[j] * scale,black);
 			}
 		}
 		p.setColor(combine(255, 0, 0));
 		c.scale(1f, -1f);
-		c.drawText("0                  64                  128                 192                255", -5, 12, p);
+		c.drawText("0                  64                128               192              255", -5, 12, p);
 	}
 	
 	/*
