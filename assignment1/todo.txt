@@ -1,0 +1,16 @@
+TODO
+
+- beeld printen in alleen groenwaardes
+	* groenwaardes per punt bepalen
+	* iets met x en y as <.<
+
+- histogram maken
+	* aantal bins bepalen door invoer(slider)
+	* binwidth = 256 / bins
+	* standaard 4 bins?
+	* max 256 bins?
+	* per gemeten groenwaarde de bin bepalen (dmv een BST?)
+		+ BST met min == 0, max == 255, aantal knopen == aantal bins
+	* bin[x] gevonden -> bin[x]++
+	* histogram tekenen op juiste locatie
+	* binwidth stappen aangeven onder histogram?
