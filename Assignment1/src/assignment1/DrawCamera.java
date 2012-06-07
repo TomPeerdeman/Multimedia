@@ -78,7 +78,20 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 	
 	public void draw(Canvas c) {
 		int w = c.getWidth();
-		int h = c.getHeight();	
+		int h = c.getHeight();
+		
+		// here you should draw the histogram. The number of bins should be user selectable.
+		// note that at this point the canvas origin is in the top left corner of the surface 
+		// just below the preview window.
+		
+		// you could translate translate an reflect the coordinate system to make
+		// into a standard coordinate system.
+		
+		// please not that the canvas height is larger then what can be seen on the screen. 
+		// For hints/tips why that is the case..... please mail Rein vd Boomgaard
+		
+		// instead of drawing the histogram below we draw the origin, put some text in it
+		// and draw a line.
 
 		c.drawColor(Color.GRAY);
 		p.setColor(combine(255, 0, 0));
@@ -102,8 +115,6 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		p.setColor(combine(255, 0, 0));
 		c.scale(1f, -1f);
 		c.drawText("0                  64                  128                 192                255", -5, 12, p);
-		Log.d("DEBUG", "canvas w = " + w + " h = " + h); // this writes to the LogCat that can be read on your PC in
-																				// the phone is connected
 	}
 	
 	/*
@@ -180,7 +191,6 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
     	}
     }
 
-    
 	public DrawCamera() {
 		p = new Paint();
 		black = new Paint();
