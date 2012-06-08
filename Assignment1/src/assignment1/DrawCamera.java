@@ -79,6 +79,7 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 			bins[i] = (int) ((double) bins[i] / (double) arraySize * 100.0d);
 		}
 		
+		//TODO: FIX, gebruik groenwaardes ipv opgetelde waardes
 		Arrays.sort(greenValues);
 		median = (greenValues[127] + greenValues[128]) / 2;
 		
@@ -88,67 +89,70 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		int w = c.getWidth();
 		int h = c.getHeight();
 		
-		// here you should draw the histogram. The number of bins should be user selectable.
-		// note that at this point the canvas origin is in the top left corner of the surface 
-		// just below the preview window.
+		// Calculate scaling and centre
+		int centre = w % 256;	
+		int scaley = (h-45)/100;
+		int scalex = w/256;
 		
-		// you could translate translate an reflect the coordinate system to make
-		// into a standard coordinate system.
+		// Calculate max y axis label and vertical scaling of the bins
+		int barscale = 100;
+		for(int i = 0; i < (256 / binwidth); i++){
+			if(100.0d / (double) bins[i] < barscale){
+				barscale = (int) Math.floor(100.0d / (double) bins[i]);
+				ymax = bins[i];
+			}
+		}
+
+		barscale *= scaley;
 		
-		// please not that the canvas height is larger then what can be seen on the screen. 
-		// For hints/tips why that is the case..... please mail Rein vd Boomgaard
-		
-		// instead of drawing the histogram below we draw the origin, put some text in it
-		// and draw a line.
+		// Calculate other vertical axis labels 
+		ymin = ymax / 4;
+		ymid1 = ymin * 2;
+		ymid2 = ymin * 3;
 
 		c.drawColor(Color.GRAY);
 		p.setColor(combine(255, 0, 0));
 		black.setColor(combine(0,0,0));
+		
 		c.drawText("Avg. Green value = " + avgGreenValue, 22, 12, p);
 		c.drawText("Standard Deviation = " + stdDev, 22, 27, p);
 		c.drawText("Median value = " + median, 182, 12, p);
 		c.drawText("Nbins = " + (256 / binwidth), 182, 27, p);
-		c.translate(32f, 130f);
-		c.scale(1f, -1f);
-		c.drawLine(0, 0, 257f, 0, black);
-		c.drawLine(0, 0, 0, 90f, black);
-		p.setColor(combine(0, 255, 0));
-		int scale = 100;
-		for(int i = 0; i < (256 / binwidth); i++){
-			if(100.0d / (double) bins[i] < scale){
-				scale = (int) Math.floor(100.0d / (double) bins[i]);
-			}
-		}
-		  
-		for(int i = 0, j = 0; i < 256; i = i + binwidth, j++){
-			if(j==0){
-				ymax = bins[j];
-			}
-			if(bins[j] > 0){
-				c.drawRect(i, bins[j] * scale, i+binwidth, 0, p);
-				c.drawLine(i, 0, i, bins[j] * scale,black);
-				c.drawLine(i, bins[j] * scale, i+binwidth, bins[j] * scale,black);
-				c.drawLine(i+binwidth, 0, i+binwidth, bins[j] * scale,black);
-				if(bins[j] > ymax){
-					ymax = bins[j];
-				}
-			}
-		}
 		
-		ymin = ymax / 4;
-		ymid1 = ymin * 2;
-		ymid2 = ymin * 3;
+		// Translate coordinate system to a more convenient one
+		c.translate((centre/2), (float) h-15f);
+		
+		// Draw axis labels
 		p.setColor(combine(255, 0, 0));
-		c.scale(1f, -1f);
+		
 		c.drawText("0", -5, 12, p);
-		c.drawText("64", 57, 12, p);
-		c.drawText("128", 120, 12, p);
-		c.drawText("192", 182, 12, p);
-		c.drawText("255", 245, 12, p);
+		c.drawText("64", 57*scalex, 12, p);
+		c.drawText("128", 120*scalex, 12, p);
+		c.drawText("192", 182*scalex, 12, p);
+		c.drawText("255", 245*scalex, 12, p);
 		c.drawText("" + ymin, -25, -12, p);
-		c.drawText("" + ymid1, -25, -36, p);
-		c.drawText("" + ymid2, -25, -61, p);
-		c.drawText("" + ymax, -25, -85, p);
+		c.drawText("" + ymid1, -25, (-12-24*scaley), p);
+		c.drawText("" + ymid2, -25, (-12-49*scaley), p);
+		c.drawText("" + ymax, -25, (-12-73*scaley), p);
+		
+		// Reverse y axis
+		c.scale(1f, -1f);
+		
+		// Draw axis
+		c.drawLine(0, 0, (256 * scalex) +1, 0, black);
+		c.drawLine(0, 0, 0, 90f * scaley, black);
+		
+		p.setColor(combine(0, 255, 0));
+		
+		// Draw bins
+		for(int i = 0, j = 0; i < 256; i = i + binwidth, j++){
+			if(bins[j] > 0){
+				c.drawRect(i, bins[j] * barscale, i+binwidth * scalex, 0, p);
+				c.drawLine(i, 0, i, bins[j] * barscale,black);
+				c.drawLine(i, bins[j] * barscale, i+binwidth * scalex, bins[j] * barscale, black);
+				c.drawLine(i+binwidth * scalex, 0, i+binwidth * scalex, bins[j] * barscale, black);
+			}
+		}
 	}
 	
 	/*
