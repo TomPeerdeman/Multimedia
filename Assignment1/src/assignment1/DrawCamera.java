@@ -5,30 +5,20 @@ import uvamult.assignment1.R;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.hardware.Camera.Size;
-import android.util.Log;
-import android.view.View;
 import assignment1.android.CameraView;
 import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
-import java.util.Arrays;
 
 public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
-	
-	/*
-	 * This class is the only file that needs changes to show
-	 * the histogram of the green values.
-	 */
-	
-	public int[] rgb;			// the array of integers
 	public Size imageSize;
-	public Paint p, black;
 	
+	private int[] rgb;			// the array of integers
+	private Paint p, black;
 	private int binwidth = 256;
 	private int avgGreenValue = 0;
 	private int stdDev = 0;
 	private int median = 0;
-	private int[] greenValues;
 	private int[] bins;
+	private int[] greenValuesCount;
 	private int ymin, ymid1, ymid2, ymax;
 	
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
@@ -53,12 +43,13 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		
 		for(int i = 0; i < 256; i++){
 			bins[i] = 0;
-			greenValues[i] = 0;
+			greenValuesCount[i] = 0;
 		}
 		
 		long total = 0;
 		for(int i = 0; i < arraySize; i++){
-			greenValues[g(rgb[i])]++;
+			bins[g(rgb[i])/binwidth]++;
+			greenValuesCount[g(rgb[i])]++;
 			total += g(rgb[i]);
 		}
 		
@@ -68,20 +59,22 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		for(int i = 0; i < arraySize; i++){
 			total += Math.pow((g(rgb[i]) - avgGreenValue), 2);
 		}
-		stdDev = (int) Math.sqrt((double) total / arraySize);
-		
-		for(int i = 0; i < 256; i++){	
-			bins[i/binwidth] += greenValues[i];
-		}
+		stdDev = (int) Math.sqrt((double) total / (double) arraySize);
 		
 		// Calculate frequency
 		for(int i = 0; i < 256; i++){
 			bins[i] = (int) ((double) bins[i] / (double) arraySize * 100.0d);
 		}
 		
-		//TODO: FIX, gebruik groenwaardes ipv opgetelde waardes
-		Arrays.sort(greenValues);
-		median = (greenValues[127] + greenValues[128]) / 2;
+		int pos = 0;
+		for(int idx = 0; pos < arraySize / 2 - 1; idx++){
+			pos += greenValuesCount[idx];
+			median = idx;
+		}
+		
+		if(pos == arraySize){
+			median = (median * 2 + 1) / 2;
+		}
 		
 	}
 	
@@ -91,7 +84,6 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		
 		// Calculate scaling and centre
 		int centre = w % 256;	
-		int scaley = (h-45)/100;
 		int scalex = w/256;
 		
 		// Calculate max y axis label and vertical scaling of the bins
@@ -102,8 +94,6 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 				ymax = bins[i];
 			}
 		}
-
-		barscale *= scaley;
 		
 		// Calculate other vertical axis labels 
 		ymin = ymax / 4;
@@ -130,28 +120,34 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		c.drawText("128", 120*scalex, 12, p);
 		c.drawText("192", 182*scalex, 12, p);
 		c.drawText("255", 245*scalex, 12, p);
-		c.drawText("" + ymin, -25, -12, p);
-		c.drawText("" + ymid1, -25, (-12-24*scaley), p);
-		c.drawText("" + ymid2, -25, (-12-49*scaley), p);
-		c.drawText("" + ymax, -25, (-12-73*scaley), p);
+		c.drawText("0", -29, 5, p);
+		c.drawText("" + ymin, -29, -20, p);
+		c.drawText("" + ymid1, -29, -45, p);
+		c.drawText("" + ymid2, -29, -70, p);
+		c.drawText("" + ymax, -29, -95, p);
+		c.drawLine(0, 0, -7, 0, black);
+		c.drawLine(0, -25, -7, -25, black);
+		c.drawLine(0, -50, -7, -50, black);
+		c.drawLine(0, -75, -7, -75, black);
+		c.drawLine(0, -100, -7, -100, black);
 		
 		// Reverse y axis
 		c.scale(1f, -1f);
 		
 		// Draw axis
 		c.drawLine(0, 0, (256 * scalex) +1, 0, black);
-		c.drawLine(0, 0, 0, 90f * scaley, black);
+		c.drawLine(0, 0, 0, 100, black);
 		
 		p.setColor(combine(0, 255, 0));
 		
 		// Draw bins
-		binwidth *= scalex;
-		for(int i = 0, j = 0; i < 256 * scalex; i = i + binwidth, j++){
+		int bw = binwidth * scalex;
+		for(int i = 0, j = 0; i < 256 * scalex; i = i + bw, j++){
 			if(bins[j] > 0){
-				c.drawRect(i, bins[j] * barscale, i+binwidth, 0, p);
+				c.drawRect(i, bins[j] * barscale, i+bw, 0, p);
 				c.drawLine(i, 0, i, bins[j] * barscale,black);
-				c.drawLine(i, bins[j] * barscale, i+binwidth, bins[j] * barscale, black);
-				c.drawLine(i+binwidth, 0, i+binwidth, bins[j] * barscale, black);
+				c.drawLine(i, bins[j] * barscale, i+bw, bins[j] * barscale, black);
+				c.drawLine(i+bw, 0, i+bw, bins[j] * barscale, black);
 			}
 		}
 	}
@@ -225,7 +221,7 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 	public DrawCamera() {
 		p = new Paint();
 		black = new Paint();
-		greenValues = new int[256];
 		bins = new int[256];
+		greenValuesCount = new int[256];
 	}
 }
