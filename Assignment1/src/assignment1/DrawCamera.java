@@ -145,12 +145,13 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		p.setColor(combine(0, 255, 0));
 		
 		// Draw bins
+		binwidth *= scalex;
 		for(int i = 0, j = 0; i < 256; i = i + binwidth, j++){
 			if(bins[j] > 0){
-				c.drawRect(i, bins[j] * barscale, i+binwidth * scalex, 0, p);
+				c.drawRect(i, bins[j] * barscale, i+binwidth, 0, p);
 				c.drawLine(i, 0, i, bins[j] * barscale,black);
-				c.drawLine(i, bins[j] * barscale, i+binwidth * scalex, bins[j] * barscale, black);
-				c.drawLine(i+binwidth * scalex, 0, i+binwidth * scalex, bins[j] * barscale, black);
+				c.drawLine(i, bins[j] * barscale, i+binwidth, bins[j] * barscale, black);
+				c.drawLine(i+binwidth, 0, i+binwidth, bins[j] * barscale, black);
 			}
 		}
 	}
