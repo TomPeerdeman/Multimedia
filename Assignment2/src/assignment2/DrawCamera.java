@@ -12,6 +12,7 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 	public Size imageSize;
 	
 	private int[] rgb;			// the array of integers
+	private int[] rgbout;
 	private Paint p;
 	private int angle;
 
@@ -31,7 +32,10 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		// Then, decode the raw image data in YUV420SP format into a red-green-blue array (rgb array)
 		// Note that per pixel the RGB values are packed into an integer. See the methods r(), g() and b().
 		int arraySize = imageSize.width*imageSize.height;
-		if(rgb == null)rgb = new int[arraySize];
+		if(rgb == null){
+			rgb = new int[arraySize];
+			rgbout = new int[arraySize];
+		}
 		decodeYUV420SP(rgb, data);
 		
 	}
@@ -40,7 +44,7 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		int w = c.getWidth();
 		int h = c.getHeight();
 		
-		
+		drawImage(c);
 	}
 	
 	/*
@@ -75,6 +79,20 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
     // Combine red, green and blue into a single color int
     private int combine(int r, int g, int b) {
     	 return 0xff000000 | (r << 16) | (g << 8) | b;
+    }
+    
+    private void drawImage(Canvas c) {
+    	//c.save();
+    	
+		//c.scale(c.getWidth(), c.getHeight()); // Note: turn to 1x1
+		//c.rotate(90, 0.5f, 0.5f); // Note: rotate around half
+		//c.scale(1.0f/imageSize.width, 1.0f/imageSize.height); // Note: scale to image sizes 
+		
+		//c.translate(10f,5f);
+		//axisDraw(c, 100f);
+		
+		c.drawBitmap(rgbout, 0, imageSize.width, 0f, 0f, imageSize.width, imageSize.height, true, null);
+		//c.restore();
     }
     
     /*
