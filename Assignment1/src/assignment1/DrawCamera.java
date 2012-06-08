@@ -103,28 +103,28 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		c.drawColor(Color.GRAY);
 		p.setColor(combine(255, 0, 0));
 		black.setColor(combine(0,0,0));
-		
-		c.drawText("Avg. Green value = " + avgGreenValue, 22, 12, p);
-		c.drawText("Standard Deviation = " + stdDev, 22, 27, p);
-		c.drawText("Median value = " + median, 182, 12, p);
-		c.drawText("Nbins = " + (256 / binwidth), 182, 27, p);
+		p.setTextSize(20);
+		c.drawText("Avg. Green value = " + avgGreenValue, 22, 20, p);
+		c.drawText("Standard Deviation = " + stdDev, 22, 40, p);
+		c.drawText("Median value = " + median, centre+30, 20, p);
+		c.drawText("Nbins = " + (256 / binwidth), centre+30, 40, p);
 		
 		// Translate coordinate system to a more convenient one
-		c.translate((centre/2), (float) h-15f);
+		c.translate((centre/2), (float) h-30f);
 		
 		// Draw axis labels
 		p.setColor(combine(255, 0, 0));
 		
-		c.drawText("0", -5, 12, p);
-		c.drawText("64", 57*scalex, 12, p);
-		c.drawText("128", 120*scalex, 12, p);
-		c.drawText("192", 182*scalex, 12, p);
-		c.drawText("255", 245*scalex, 12, p);
+		c.drawText("0", -5, 20, p);
+		c.drawText("64", 57*scalex, 20, p);
+		c.drawText("128", 120*scalex, 20, p);
+		c.drawText("192", 182*scalex, 20, p);
+		c.drawText("255", 245*scalex, 20, p);
 		c.drawText("0", -29, 5, p);
-		c.drawText("" + ymin, -29, -20, p);
-		c.drawText("" + ymid1, -29, -45, p);
-		c.drawText("" + ymid2, -29, -70, p);
-		c.drawText("" + ymax, -29, -95, p);
+		c.drawText("" + ymin, -40, -20, p);
+		c.drawText("" + ymid1, -40, -45, p);
+		c.drawText("" + ymid2, -40, -70, p);
+		c.drawText("" + ymax, -40, -95, p);
 		c.drawLine(0, 0, -7, 0, black);
 		c.drawLine(0, -25, -7, -25, black);
 		c.drawLine(0, -50, -7, -50, black);
