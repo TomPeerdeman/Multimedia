@@ -38,6 +38,9 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		}
 		decodeYUV420SP(rgb, data);
 		
+		for(int i = 0; i < arraySize; i++){
+			rgbout[i] = combine(0, g(rgb[i]), 0);
+		}
 	}
 	
 	public void draw(Canvas c) {
@@ -62,7 +65,7 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 	 */
     
 	// Extract the red element from the given color
-    private int r(int rgb) {
+	private int r(int rgb) {
     	return (rgb & 0xff0000) >> 16;
     }
 
