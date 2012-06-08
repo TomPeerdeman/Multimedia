@@ -9,16 +9,17 @@ import assignment2.android.CameraView;
 import android.widget.SeekBar;
 
 public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
+	public final double DEGTORAD = 180 / Math.PI;
+	
 	public Size imageSize;
 	
 	private int[] rgb;			// the array of integers
 	private int[] rgbout;
 	private Paint p;
-	private int angle;
-
+	private double angle = 10 * DEGTORAD;
 	
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
-		angle = progress;
+		//angle = progress;
 	}
 	
 	public void onStartTrackingTouch(SeekBar seekBar){
@@ -38,9 +39,31 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		}
 		decodeYUV420SP(rgb, data);
 		
-		for(int i = 0; i < arraySize; i++){
-			rgbout[i] = combine(0, g(rgb[i]), 0);
+		double sin = Math.sin(angle);
+		double cos = Math.cos(angle);
+		double rx, ry;
+		for(int y = 0; y < imageSize.height; y++){
+			for(int x = 0; x < imageSize.width; x++){
+				rx = x * cos - y * sin;
+				ry = x * sin + y * cos;
+				rgbout[xyToIdx(x, y)] = interpolate(rx, ry, rgb);
+				
+				// Geeft hetzelfde plaatje
+				//rgbout[xyToIdx(x, y)] = rgb[xyToIdx(x, y)];
+			}
 		}
+	}
+	
+	private int interpolate(double x, double y, int[] rgb){
+		int idx = xyToIdx((int) Math.round(x), (int) Math.round(y));
+		if(idx > rgb.length || idx < 0){
+			return 0;
+		}
+		return rgb[idx];
+	}
+	
+	private int xyToIdx(int x, int y){
+		return y * imageSize.height + x;
 	}
 	
 	public void draw(Canvas c) {
