@@ -2,21 +2,21 @@ package assignment2;
 
 import android.graphics.Canvas;
 import uvamult.assignment2.R;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.hardware.Camera.Size;
 import assignment2.android.CameraView;
 import android.widget.SeekBar;
+import android.util.Log;
 
 public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
-	public final double DEGTORAD = 180 / Math.PI;
+	public final double DEGTORAD = 180.0d / Math.PI;
 	
 	public Size imageSize;
 	
 	private int[] rgb;			// the array of integers
 	private int[] rgbout;
 	private Paint p;
-	private double angle = 10 * DEGTORAD;
+	private double angle = Math.PI;
 	
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
 		//angle = progress;
@@ -41,11 +41,19 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		
 		double sin = Math.sin(angle);
 		double cos = Math.cos(angle);
-		double rx, ry;
+		double rx, ry, dx, dy;
+		// Center
+		double cx = imageSize.width / 2;
+		double cy = imageSize.height / 2;
 		for(int y = 0; y < imageSize.height; y++){
 			for(int x = 0; x < imageSize.width; x++){
-				rx = x * cos - y * sin;
-				ry = x * sin + y * cos;
+				dx = x - cx;
+				dy = y - cy;
+				rx = dx * cos - dy * sin + cx;
+				ry = dx * sin + dy * cos + cy;
+				if(x == 100 && y == 100){
+					Log.d("DEBUG", "rx: " + rx + " ry: " + ry + " Angle: " + angle + " Pi: " + Math.PI);
+				}
 				rgbout[xyToIdx(x, y)] = interpolate(rx, ry, rgb);
 				
 				// Geeft hetzelfde plaatje
@@ -56,7 +64,7 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 	
 	private int interpolate(double x, double y, int[] rgb){
 		int idx = xyToIdx((int) Math.round(x), (int) Math.round(y));
-		if(idx > rgb.length || idx < 0){
+		if(idx >= rgb.length || idx < 0){
 			return 0;
 		}
 		return rgb[idx];
