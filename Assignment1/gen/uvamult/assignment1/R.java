@@ -17,8 +17,9 @@ public final class R {
         public static final int camerafield=0x7f050003;
         public static final int controlbar=0x7f050001;
         public static final int horizontalScrollView1=0x7f050000;
-        public static final int seekBar1=0x7f050004;
+        public static final int seekBar1=0x7f050005;
         public static final int surfaceView1=0x7f050002;
+        public static final int textView1=0x7f050004;
     }
     public static final class layout {
         public static final int camera=0x7f030000;

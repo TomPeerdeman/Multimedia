@@ -110,7 +110,7 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		c.drawText("Nbins = " + (256 / binwidth), 182, 27, p);
 		c.translate(32f, 130f);
 		c.scale(1f, -1f);
-		c.drawLine(0, 0, w-64f, 0, black);
+		c.drawLine(0, 0, 257f, 0, black);
 		c.drawLine(0, 0, 0, 90f, black);
 		p.setColor(combine(0, 255, 0));
 		int scale = 100;
