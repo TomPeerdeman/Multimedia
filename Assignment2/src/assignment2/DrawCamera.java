@@ -7,6 +7,7 @@ import uvamult.assignment2.R;
 import android.hardware.Camera.Size;
 import assignment2.android.CameraView;
 import android.view.View;
+import android.widget.Button;
 import android.widget.SeekBar;
 
 public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
@@ -17,6 +18,7 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 	private double angle = Math.toRadians(90);
 	private double sin = 1;
 	private double cos = 0;
+	
 	
 	private enum Interpolation{
 		BILINEAIR, NN;
@@ -66,7 +68,7 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 					rgbout[xyToIdx(x, y)] = interpolateBilineair(rx, ry, rgb);
 				}
 			}
-		}	
+		}
 	}
 	
 	private int interpolateNN(double x, double y, int[] rgb){
@@ -128,16 +130,17 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		 centrey = centrey / 2;
 		 centrex = centrex / 2;
 		 
-		 c.drawColor(Color.BLACK);
+		 c.drawColor(Color.WHITE);
 		 c.save();
 		 c.translate(centrex,centrey);
 		 drawImage(c);
 		 
 		 c.restore();
+		 c.drawText("Interpolation:", 15f, 15f, p);
 		 if(interpolation == Interpolation.NN){
-			 c.drawText("Interpolation: Nearest neighbour", 30f, 15f, p);
+			 c.drawText("Nearest neighbour", 15f, 30f, p);
 		 }else{
-			 c.drawText("Interpolation: Bilineair", 30f, 15f, p);
+			 c.drawText("Bilineair", 15f, 30f, p);
 		 }
 	}
 	
@@ -148,16 +151,18 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		SeekBar seekBar = (SeekBar) view.activity.findViewById(R.id.seekBar1);
 		seekBar.setMax(360);
 		seekBar.setOnSeekBarChangeListener(this);
-		view.addButton("         Bilineair         ", new View.OnClickListener() {
-			public void onClick(View arg) {
-				interpolation = Interpolation.BILINEAIR;
+        Button BI = (Button) view.activity.findViewById(R.id.buttonBI);
+        Button NN = (Button) view.activity.findViewById(R.id.buttonNN);
+        BI.setOnClickListener(new View.OnClickListener() {
+        	public void onClick(View arg) {
+        		interpolation = Interpolation.BILINEAIR;
 			}
-		});
-		view.addButton("Nearest neighbour", new View.OnClickListener() {
-			public void onClick(View arg) {
-				interpolation = Interpolation.NN;
+        });
+        NN.setOnClickListener(new View.OnClickListener() {
+        	public void onClick(View arg) {
+        		interpolation = Interpolation.NN;
 			}
-		});
+        });
 	}
     
     private void drawImage(Canvas c) {
