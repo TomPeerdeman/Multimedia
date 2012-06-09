@@ -40,11 +40,11 @@
             android:layout_height="176dp"
             android:layout_alignParentTop="true"
             android:layout_marginLeft="100dp" />
-
+
         <assignment2.android.CameraView
             android:id="@+id/camerafield"
             android:layout_width="176dp"
-            android:layout_height="144dp"
+            android:layout_height="200dp"
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
             android:layout_below="@+id/surfaceView1"

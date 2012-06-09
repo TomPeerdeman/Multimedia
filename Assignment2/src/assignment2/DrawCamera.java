@@ -1,6 +1,7 @@
 package assignment2;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
 import uvamult.assignment2.R;
 import android.graphics.Paint;
 import android.hardware.Camera.Size;
@@ -16,10 +17,10 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 	private int[] rgb;			// the array of integers
 	private int[] rgbout;
 	private Paint p;
-	private double angle = Math.PI;
+	private double angle =  Math.toRadians(90);
 	
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
-		//angle = progress;
+		angle = Math.toRadians(progress + 90);
 	}
 	
 	public void onStartTrackingTouch(SeekBar seekBar){
@@ -43,23 +44,22 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		double cos = Math.cos(angle);
 		double rx, ry, dx, dy;
 		// Center
-		double cx = imageSize.width / 2;
-		double cy = imageSize.height / 2;
+		double cx = (double) imageSize.width / 2.0d;
+		double cy = (double) imageSize.height / 2.0d;
 		for(int y = 0; y < imageSize.height; y++){
+			dy = y - cy;
 			for(int x = 0; x < imageSize.width; x++){
 				dx = x - cx;
-				dy = y - cy;
-				rx = dx * cos - dy * sin + cx;
-				ry = dx * sin + dy * cos + cy;
-				if(x == 100 && y == 100){
-					Log.d("DEBUG", "rx: " + rx + " ry: " + ry + " Angle: " + angle + " Pi: " + Math.PI);
-				}
+				
+				rx = (dx * cos) + (dy * sin) + cx;
+				ry = (-1 * dx * sin) + (dy * cos) + cy;
+				
 				rgbout[xyToIdx(x, y)] = interpolate(rx, ry, rgb);
 				
 				// Geeft hetzelfde plaatje
 				//rgbout[xyToIdx(x, y)] = rgb[xyToIdx(x, y)];
 			}
-		}
+		}	
 	}
 	
 	private int interpolate(double x, double y, int[] rgb){
@@ -71,13 +71,17 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 	}
 	
 	private int xyToIdx(int x, int y){
-		return y * imageSize.height + x;
+		return y * imageSize.width + x;
 	}
 	
 	public void draw(Canvas c) {
 		int w = c.getWidth();
 		int h = c.getHeight();
 		
+		int centrex = w - imageSize.width;
+		c.drawColor(Color.GRAY);
+		centrex = centrex / 2;
+		c.translate(centrex,0);
 		drawImage(c);
 	}
 	
