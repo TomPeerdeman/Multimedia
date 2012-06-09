@@ -3,11 +3,9 @@ package assignment2;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import uvamult.assignment2.R;
-import android.graphics.Paint;
 import android.hardware.Camera.Size;
 import assignment2.android.CameraView;
 import android.widget.SeekBar;
-import android.util.Log;
 
 public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 	public final double DEGTORAD = 180.0d / Math.PI;
@@ -16,11 +14,14 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 	
 	private int[] rgb;			// the array of integers
 	private int[] rgbout;
-	private Paint p;
-	private double angle =  Math.toRadians(90);
+	private double angle = Math.toRadians(90);
+	private double sin = 1;
+	private double cos = 0;
 	
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
 		angle = Math.toRadians(progress + 90);
+		sin = Math.sin(angle);
+		cos = Math.cos(angle);
 	}
 	
 	public void onStartTrackingTouch(SeekBar seekBar){
@@ -32,20 +33,18 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 	public void imageReceived(byte[] data) {
 		// Allocate the image as an array of integers if needed.
 		// Then, decode the raw image data in YUV420SP format into a red-green-blue array (rgb array)
-		// Note that per pixel the RGB values are packed into an integer. See the methods r(), g() and b().
 		int arraySize = imageSize.width*imageSize.height;
 		if(rgb == null){
 			rgb = new int[arraySize];
 			rgbout = new int[arraySize];
 		}
 		decodeYUV420SP(rgb, data);
-		
-		double sin = Math.sin(angle);
-		double cos = Math.cos(angle);
+
 		double rx, ry, dx, dy;
 		// Center
 		double cx = (double) imageSize.width / 2.0d;
 		double cy = (double) imageSize.height / 2.0d;
+		
 		for(int y = 0; y < imageSize.height; y++){
 			dy = y - cy;
 			for(int x = 0; x < imageSize.width; x++){
@@ -55,16 +54,15 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 				ry = (-1 * dx * sin) + (dy * cos) + cy;
 				
 				rgbout[xyToIdx(x, y)] = interpolate(rx, ry, rgb);
-				
-				// Geeft hetzelfde plaatje
-				//rgbout[xyToIdx(x, y)] = rgb[xyToIdx(x, y)];
 			}
 		}	
 	}
 	
 	private int interpolate(double x, double y, int[] rgb){
-		int idx = xyToIdx((int) Math.round(x), (int) Math.round(y));
-		if(idx >= rgb.length || idx < 0){
+		x = Math.round(x);
+		y = Math.round(y);
+		int idx = xyToIdx((int) x, (int) y);
+		if(x < 0 || x > imageSize.width || y < 0 || y > imageSize.height || idx >= rgb.length || idx < 0){
 			return 0;
 		}
 		return rgb[idx];
@@ -74,11 +72,8 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		return y * imageSize.width + x;
 	}
 	
-	public void draw(Canvas c) {
-		int w = c.getWidth();
-		int h = c.getHeight();
-		
-		int centrex = w - imageSize.width;
+	public void draw(Canvas c) {	
+		int centrex = c.getWidth() - imageSize.width;
 		c.drawColor(Color.GRAY);
 		centrex = centrex / 2;
 		c.translate(centrex,0);
@@ -93,44 +88,9 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		seekBar.setMax(360);
 		seekBar.setOnSeekBarChangeListener(this);
 	}
-		
-	/*
-	 * Below are some convenience methods,
-	 * like grabbing colors and decoding.
-	 */
-    
-	// Extract the red element from the given color
-	private int r(int rgb) {
-    	return (rgb & 0xff0000) >> 16;
-    }
-
-	// Extract the green element from the given color
-    private int g(int rgb) {
-    	return (rgb & 0x00ff00) >> 8;
-    }
-
-	// Extract the blue element from the given color
-    private int b(int rgb) {
-    	return (rgb & 0x0000ff);
-    }
-    
-    // Combine red, green and blue into a single color int
-    private int combine(int r, int g, int b) {
-    	 return 0xff000000 | (r << 16) | (g << 8) | b;
-    }
     
     private void drawImage(Canvas c) {
-    	//c.save();
-    	
-		//c.scale(c.getWidth(), c.getHeight()); // Note: turn to 1x1
-		//c.rotate(90, 0.5f, 0.5f); // Note: rotate around half
-		//c.scale(1.0f/imageSize.width, 1.0f/imageSize.height); // Note: scale to image sizes 
-		
-		//c.translate(10f,5f);
-		//axisDraw(c, 100f);
-		
 		c.drawBitmap(rgbout, 0, imageSize.width, 0f, 0f, imageSize.width, imageSize.height, true, null);
-		//c.restore();
     }
     
     /*
@@ -164,8 +124,4 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
     		}
     	}
     }
-
-	public DrawCamera() {
-		p = new Paint();
-	}
 }
