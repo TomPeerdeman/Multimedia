@@ -2,9 +2,11 @@ package assignment2;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import uvamult.assignment2.R;
 import android.hardware.Camera.Size;
 import assignment2.android.CameraView;
+import android.view.View;
 import android.widget.SeekBar;
 
 public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
@@ -17,6 +19,13 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 	private double angle = Math.toRadians(90);
 	private double sin = 1;
 	private double cos = 0;
+	
+	private enum Interpolation{
+		BILINEAIR, NN;
+	}
+	
+	private Interpolation interpolation = Interpolation.NN;
+	private Paint p;
 	
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
 		angle = Math.toRadians(progress + 90);
@@ -73,11 +82,22 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 	}
 	
 	public void draw(Canvas c) {	
-		int centrex = c.getWidth() - imageSize.width;
-		c.drawColor(Color.GRAY);
-		centrex = centrex / 2;
-		c.translate(centrex,0);
-		drawImage(c);
+		 int centrex = c.getWidth() - imageSize.width;
+		 int centrey = c.getHeight() - imageSize.height;
+		 centrey = centrey / 2;
+		 centrex = centrex / 2;
+		 
+		 c.drawColor(Color.BLACK);
+		 c.save();
+		 c.translate(centrex,centrey);
+		 drawImage(c);
+		 
+		 c.restore();
+		 if(interpolation == Interpolation.NN){
+			 c.drawText("Interpolation: Nearest neighbour", 30f, 30f, p);
+		 }else{
+			 c.drawText("Interpolation: Bilineair", 30f, 30f, p);
+		 }
 	}
 	
 	/*
@@ -87,6 +107,16 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		SeekBar seekBar = (SeekBar) view.activity.findViewById(R.id.seekBar1);
 		seekBar.setMax(360);
 		seekBar.setOnSeekBarChangeListener(this);
+		view.addButton("         Bilineair         ", new View.OnClickListener() {
+			public void onClick(View arg) {
+				interpolation = Interpolation.BILINEAIR;
+			}
+		});
+		view.addButton("Nearest neighbour", new View.OnClickListener() {
+			public void onClick(View arg) {
+				interpolation = Interpolation.NN;
+			}
+		});
 	}
     
     private void drawImage(Canvas c) {
@@ -124,4 +154,9 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
     		}
     	}
     }
+
+	public DrawCamera(){
+		p = new Paint();
+		p.setColor(Color.RED);
+	}
 }
