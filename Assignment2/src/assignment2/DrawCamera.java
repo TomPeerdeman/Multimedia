@@ -10,8 +10,6 @@ import android.view.View;
 import android.widget.SeekBar;
 
 public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
-	public final double DEGTORAD = 180.0d / Math.PI;
-	
 	public Size imageSize;
 	
 	private int[] rgb;			// the array of integers
@@ -62,12 +60,16 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 				rx = (dx * cos) + (dy * sin) + cx;
 				ry = (-1 * dx * sin) + (dy * cos) + cy;
 				
-				rgbout[xyToIdx(x, y)] = interpolate(rx, ry, rgb);
+				if(interpolation == Interpolation.NN){
+					rgbout[xyToIdx(x, y)] = interpolateNN(rx, ry, rgb);
+				}else{
+					rgbout[xyToIdx(x, y)] = interpolateBilineair(rx, ry, rgb);
+				}
 			}
 		}	
 	}
 	
-	private int interpolate(double x, double y, int[] rgb){
+	private int interpolateNN(double x, double y, int[] rgb){
 		x = Math.round(x);
 		y = Math.round(y);
 		int idx = xyToIdx((int) x, (int) y);
@@ -75,6 +77,45 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 			return 0;
 		}
 		return rgb[idx];
+	}
+	/*
+	 * *--x-*
+	 * .    .
+	 * .    .
+	 * .    .
+	 * *--x-*
+	 * 
+	 */
+	private double interpolateLineairHorz(double x, int y, int[] rgb){	
+		int high = (int) Math.ceil(x);
+		int low = (int) Math.floor(x);
+		
+		if(high > imageSize.width || high < 0 || low > imageSize.width || low < 0 || y > imageSize.height || y < 0){
+			return 0.0d;
+		}
+		
+		//Exception here
+		int rgbHigh = rgb[xyToIdx(high, y)];
+		
+		int rgbLow = rgb[xyToIdx(low, y)];
+		int d = Math.abs(rgbHigh - rgbLow);
+		return (double) d * (x - (double) low);
+	}
+	
+	/*
+	 * *--x-*
+	 * .  | .
+	 * .  x .
+	 * .  | .
+	 * *--x-*
+	 * 
+	 */
+	private int interpolateBilineair(double x, double y, int[] rgb){
+		double highVal = interpolateLineairHorz(x, (int) Math.ceil(y), rgb);
+		double lowVal = interpolateLineairHorz(x, (int) Math.floor(y), rgb);
+		
+		double d = Math.abs(highVal - lowVal);
+		return (int) (d * (y - Math.floor(y)));
 	}
 	
 	private int xyToIdx(int x, int y){
@@ -94,9 +135,9 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		 
 		 c.restore();
 		 if(interpolation == Interpolation.NN){
-			 c.drawText("Interpolation: Nearest neighbour", 30f, 30f, p);
+			 c.drawText("Interpolation: Nearest neighbour", 30f, 15f, p);
 		 }else{
-			 c.drawText("Interpolation: Bilineair", 30f, 30f, p);
+			 c.drawText("Interpolation: Bilineair", 30f, 15f, p);
 		 }
 	}
 	
