@@ -6,6 +6,7 @@ import android.graphics.Paint;
 import uvamult.assignment2.R;
 import android.hardware.Camera.Size;
 import assignment2.android.CameraView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
@@ -81,6 +82,7 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		return rgb[idx];
 	}
 	/*
+	 * 
 	 * *--x-*
 	 * .    .
 	 * .    .
@@ -88,23 +90,33 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 	 * *--x-*
 	 * 
 	 */
-	private double interpolateLineairHorz(double x, int y, int[] rgb){	
-		int high = (int) Math.ceil(x);
-		int low = (int) Math.floor(x);
-		
-		if(high > imageSize.width || high < 0 || low > imageSize.width || low < 0 || y > imageSize.height || y < 0){
-			return 0.0d;
+	private void interpolateLineairHorz(double x, int y, int[] rgb, double[] irgb){	
+		if(x >= imageSize.width || x < 0 || y >= imageSize.height || y < 0){
+			return;
 		}
 		
-		//Exception here
-		int rgbHigh = rgb[xyToIdx(high, y)];
+		int low = (int) Math.floor(x);
 		
+		int rgbHigh = rgb[xyToIdx((int) Math.ceil(x), y)];
 		int rgbLow = rgb[xyToIdx(low, y)];
-		int d = Math.abs(rgbHigh - rgbLow);
-		return (double) d * (x - (double) low);
+		
+		double dist = x - low;
+		
+		irgb[0] = Math.abs(r(rgbHigh) - r(rgbLow));
+		irgb[1] = Math.abs(g(rgbHigh) - g(rgbLow));
+		irgb[2] = Math.abs(b(rgbHigh) - b(rgbLow));
+		
+		irgb[0] *= dist;
+		irgb[1] *= dist;
+		irgb[2] *= dist;
+		
+		irgb[0] += Math.min(r(rgbHigh), r(rgbLow));
+		irgb[1] += Math.min(g(rgbHigh), g(rgbLow));;
+		irgb[2] += Math.min(b(rgbHigh), b(rgbLow));;
 	}
 	
 	/*
+	 * 
 	 * *--x-*
 	 * .  | .
 	 * .  x .
@@ -113,11 +125,33 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 	 * 
 	 */
 	private int interpolateBilineair(double x, double y, int[] rgb){
-		double highVal = interpolateLineairHorz(x, (int) Math.ceil(y), rgb);
-		double lowVal = interpolateLineairHorz(x, (int) Math.floor(y), rgb);
+		if(x >= imageSize.width || x < 0 || y >= imageSize.height || y < 0){
+			return 0;
+		}
 		
-		double d = Math.abs(highVal - lowVal);
-		return (int) (d * (y - Math.floor(y)));
+		double rgbHigh[] = new double[3];
+		double rgbLow[] = new double[3];
+		double irgb[] = new double[3];
+		
+		int low = (int) Math.floor(y);
+		
+		interpolateLineairHorz(x, (int) Math.ceil(y), rgb, rgbHigh);
+		interpolateLineairHorz(x, low, rgb, rgbLow);
+		
+		double dist = y - low;
+		irgb[0] = Math.abs(rgbHigh[0] - rgbLow[0]);
+		irgb[1] = Math.abs(rgbHigh[1] - rgbLow[1]);
+		irgb[2] = Math.abs(rgbHigh[2] - rgbLow[2]);
+		
+		irgb[0] *= dist;
+		irgb[1] *= dist;
+		irgb[2] *= dist;
+		
+		irgb[0] += Math.min(rgbHigh[0], rgbLow[0]);
+		irgb[1] += Math.min(rgbHigh[1], rgbLow[1]);
+		irgb[2] += Math.min(rgbHigh[2], rgbLow[2]);
+		
+		return combine((int) Math.round(irgb[0]), (int) Math.round(irgb[1]), (int) Math.round(irgb[2]));
 	}
 	
 	private int xyToIdx(int x, int y){
@@ -130,9 +164,9 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		 centrey = centrey / 2;
 		 centrex = centrex / 2;
 		 
-		 c.drawColor(Color.WHITE);
+		 c.drawColor(Color.BLACK);
 		 c.save();
-		 c.translate(centrex,centrey);
+		 c.translate(centrex, centrey);
 		 drawImage(c);
 		 
 		 c.restore();
@@ -164,6 +198,31 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 			}
         });
 	}
+	
+	/*
+	 * Below are some convenience methods,
+	 * like grabbing colors and decoding.
+	 */
+    
+	// Extract the red element from the given color
+    private int r(int rgb) {
+    	return (rgb & 0xff0000) >> 16;
+    }
+
+	// Extract the green element from the given color
+    private int g(int rgb) {
+    	return (rgb & 0x00ff00) >> 8;
+    }
+
+	// Extract the blue element from the given color
+    private int b(int rgb) {
+    	return (rgb & 0x0000ff);
+    }
+    
+    // Combine red, green and blue into a single color int
+    private int combine(int r, int g, int b) {
+    	 return 0xff000000 | (r << 16) | (g << 8) | b;
+    }
     
     private void drawImage(Canvas c) {
 		c.drawBitmap(rgbout, 0, imageSize.width, 0f, 0f, imageSize.width, imageSize.height, true, null);
