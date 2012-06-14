@@ -111,8 +111,8 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		irgb[2] *= dist;
 		
 		irgb[0] += Math.min(r(rgbHigh), r(rgbLow));
-		irgb[1] += Math.min(g(rgbHigh), g(rgbLow));;
-		irgb[2] += Math.min(b(rgbHigh), b(rgbLow));;
+		irgb[1] += Math.min(g(rgbHigh), g(rgbLow));
+		irgb[2] += Math.min(b(rgbHigh), b(rgbLow));
 	}
 	
 	/*
@@ -174,7 +174,7 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		 if(interpolation == Interpolation.NN){
 			 c.drawText("Nearest neighbour", 15f, 30f, p);
 		 }else{
-			 c.drawText("Bilineair", 15f, 30f, p);
+			 c.drawText("Bilinear", 15f, 30f, p);
 		 }
 	}
 	
