@@ -78,12 +78,6 @@ void draw() {
   }
   disBlocks = 1/ (axisBlocks-1);
   drawRGBCube(disBlocks, axisBlocks);
-  if((wBlock * axisBlocks) > 2){
-    wBlock = disBlocks;
-  }
-  if(wBlock < 0.02){
-    wBlock = 0.02;
-  }
 
   // Get original viewBlock matrix:
   popMatrix();
@@ -99,15 +93,15 @@ void drawRGBCube(float disBlocks, int axisBlocks) {
 
   for(int i = 0; i < axisBlocks; i++){
     if(i > 0){
-      xTrans = xTrans + disBlocks;
+      xTrans = xTrans + wBlock;
     }
     for(int j = 0; j < axisBlocks; j++){
       if(j > 0){
-        yTrans = yTrans + disBlocks;
+        yTrans = yTrans + wBlock;
       }
       for(int k = 0; k < axisBlocks; k++){
         if(k > 0){
-          zTrans = zTrans + disBlocks;
+          zTrans = zTrans + wBlock;
         }
         translate(xTrans,yTrans,zTrans);
         fill(xTrans,yTrans,zTrans);
