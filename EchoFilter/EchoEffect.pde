@@ -1,3 +1,22 @@
+/*
+ * File: EchoEffect.pde
+ *
+ * This file contains an implementation of an echo effect.
+ * The echo effect uses two circular buffers, one for each channel.
+ * In this buffer are already played samples stored.
+ * When a new sample is processed the sample 'delayLength' samples
+ * before this sample is combined with the to processed sample.
+ *
+ * Author: René Aparicio Saez
+ * Student nr.: 10214054
+ *
+ * Author: Tom Peerdeman
+ * Student nr.: 10266186
+ *
+ * Date: 14/06/2012
+ *
+ */
+
 class EchoEffect implements AudioEffect{
   CircularBuffer bufLeft;
   CircularBuffer bufRight;
@@ -5,12 +24,10 @@ class EchoEffect implements AudioEffect{
   float echoVolume;
   float nonEchoVolume;
   
-  EchoEffect(int bufLeng){
+  EchoEffect(){
    setDelay(0.2f);
    setEchoVolume(0.3f);
    
-   System.out.printf("Delay of %d\n", delayLength);
-   System.out.printf("Echo volume ratio %f\n", echoVolume);
    bufLeft =  new CircularBuffer(delayLength + 1);
    bufRight =  new CircularBuffer(delayLength + 1);
   }
