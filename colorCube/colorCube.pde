@@ -21,8 +21,8 @@
 
 
 /* Global variables: */
-float wBlock = 0.5;
-float disBlocks = 1;
+float wBlock = 1;
+float disBlocks = 0;
 
 int axisBlocks = 2;
 
@@ -63,21 +63,20 @@ void draw() {
       if (keyCode == DOWN && axisBlocks > 2) {
         axisBlocks -= 1;
       }
-      if (keyCode == LEFT && wBlock > 0.02 ) {
-        wBlock -= 0.02;
+      if (keyCode == LEFT && disBlocks > 0 ) {
+        disBlocks -= 0.02;
       }
       /* 
        * chose .98 because of a strange error.
        * If wBlock doesnt start as one from the beginning it will count untill 1.02
        * Hence the choice 0.98
        */
-      if (keyCode == RIGHT && wBlock < .98 && (wBlock * axisBlocks) < 2) {
-        wBlock += 0.02;
+      if (keyCode == RIGHT && disBlocks < .98) {
+        disBlocks += 0.02;
       }
     }
   }
-  disBlocks = 1/ (axisBlocks-1);
-  drawRGBCube(disBlocks, axisBlocks);
+  drawRGBCube(disBlocks, axisBlocks, wBlock);
 
   // Get original viewBlock matrix:
   popMatrix();
@@ -85,7 +84,7 @@ void draw() {
 
 
 /* DrawBlock the color cube */
-void drawRGBCube(float disBlocks, int axisBlocks) {
+void drawRGBCube(float disBlocks, int axisBlocks, float wBlock) {
   // Your implementation comes here.
   float yTrans = 0;
   float xTrans = 0;
@@ -93,15 +92,15 @@ void drawRGBCube(float disBlocks, int axisBlocks) {
 
   for(int i = 0; i < axisBlocks; i++){
     if(i > 0){
-      xTrans = xTrans + wBlock;
+      xTrans = xTrans + wBlock + disBlocks;
     }
     for(int j = 0; j < axisBlocks; j++){
       if(j > 0){
-        yTrans = yTrans + wBlock;
+        yTrans = yTrans + wBlock + disBlocks;
       }
       for(int k = 0; k < axisBlocks; k++){
         if(k > 0){
-          zTrans = zTrans + wBlock;
+          zTrans = zTrans + wBlock + disBlocks;
         }
         translate(xTrans,yTrans,zTrans);
         fill(xTrans,yTrans,zTrans);
