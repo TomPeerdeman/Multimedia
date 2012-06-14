@@ -54,7 +54,6 @@ void draw() {
   // DrawBlock the color cube:
 
   scale(width/4);
-  translate(-.5, -.5, -.5);
   if(keyPressed) {
     if (key == CODED) {
       if (keyCode == UP && axisBlocks < 16) {
@@ -76,6 +75,9 @@ void draw() {
       }
     }
   }
+  float firstTrans;
+  firstTrans = -0.5 - (disBlocks * 0.5);
+  translate(firstTrans * (axisBlocks-1), firstTrans * (axisBlocks-1), firstTrans * (axisBlocks-1));
   drawRGBCube(disBlocks, axisBlocks, wBlock);
 
   // Get original viewBlock matrix:
