@@ -29,6 +29,7 @@ class CircularBuffer{
   }
   
   boolean addSample(float v){
+      // Buffer full, resize
       if(fill == buffer.length){
         bufferResize = new float[buffer.length * 2];
         if(head == 0){

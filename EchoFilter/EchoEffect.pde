@@ -25,15 +25,22 @@ class EchoEffect implements AudioEffect{
   float nonEchoVolume;
   
   EchoEffect(){
+   // Initialize volume & delay
    setDelay(0.2f);
    setEchoVolume(0.3f);
    
+   // Initialize buffers
    bufLeft =  new CircularBuffer(delayLength + 1);
    bufRight =  new CircularBuffer(delayLength + 1);
   }
   
   void setDelay(float delay){
     delayLength = (int) (44100 * delay);
+    if(bufLeft != null){
+     // Clear required otherwise older data than we want is mixed in.
+     bufLeft.clear();
+     bufRight.clear();
+    }
   }
   
   void setEchoVolume(float vol){
@@ -43,24 +50,27 @@ class EchoEffect implements AudioEffect{
    
   void process(float[] samp){
     for(int i = 0; i < samp.length; i++){
-        bufLeft.addSample(samp[i]);
-        if(bufLeft.fill >= delayLength){
-          samp[i] = samp[i] * nonEchoVolume;
-          samp[i] += bufLeft.getSample() * echoVolume;
-        }
+      bufLeft.addSample(samp[i]);
+      if(bufLeft.fill >= delayLength){
+        // Buffer full enough, mix it
+        samp[i] = samp[i] * nonEchoVolume;
+        samp[i] += bufLeft.getSample() * echoVolume;
+      }
     }
   }
    
   void process(float[] left, float[] right){
     for(int i = 0; i < left.length; i++){
-        bufLeft.addSample(left[i]);
-        bufRight.addSample(right[i]);
-        if(bufLeft.fill >= delayLength){
-          left[i] = left[i] * nonEchoVolume;
-          left[i] += bufLeft.getSample() * echoVolume;
-          right[i] = right[i] * nonEchoVolume;
-          right[i] += bufRight.getSample() * echoVolume;
-        }
+      bufLeft.addSample(left[i]);
+      bufRight.addSample(right[i]);
+      
+      // Buffer full enough, mix it
+      if(bufLeft.fill >= delayLength){
+        left[i] = left[i] * nonEchoVolume;
+        left[i] += bufLeft.getSample() * echoVolume;
+        right[i] = right[i] * nonEchoVolume;
+        right[i] += bufRight.getSample() * echoVolume;
+      }
     }
   }
 }
