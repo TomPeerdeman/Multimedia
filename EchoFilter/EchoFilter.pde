@@ -11,7 +11,7 @@ import ddf.minim.effects.*;
 
 Minim minim;
 AudioPlayer player;
-ReverseEffect reffect;
+EchoEffect effect;
 
 void setup()
 {
@@ -19,8 +19,8 @@ void setup()
   
   minim = new Minim(this);
   player = minim.loadFile("groove.mp3", 1024);
-  reffect = new ReverseEffect();
-  groove.addEffect(reffect);
+  effect = new EchoEffect();
+  player.addEffect(effect);
   player.play();
 }
 
