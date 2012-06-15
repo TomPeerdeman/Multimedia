@@ -10,21 +10,21 @@
  *
  * Datum: ??/06/2012
  *
- *
- *
- *
- *
- *
- *
+ * This file contains an implementation of an RGB color cube
+ * The cube consists of smaller cubes that contain RGB values
+ * Depending of the amount of cubes the different RGB values are shown in the cube
+ * The amount of cubes vary between 2x2x2 up to 16x16x16, this can be changed
+ * manually by pressing the UP or DOWN key
+ * The space between the cubes can be changed by hand aswell by using
+ * the LEFT and RIGHT key
  *
  */
 
 
 /* Global variables: */
-float wBlock = 1;
-float disBlocks = 0;
+float wBlock = 0.2;
 
-int axisBlocks = 2;
+float axisBlocks = 2;
 
 /* Setup function: */
 void setup() {
@@ -40,7 +40,7 @@ void draw() {
   lights();
   // Make background dark gray:
   background(0.3, 0.3, 0.3);
-  
+
   // Save current viewBlock matrix:
   pushMatrix();
 
@@ -50,11 +50,25 @@ void draw() {
   // Rotate the histogram depending on the mouse position:
   rotateY(mouseX/float(width) * PI * 4);
   rotateX(mouseY/float(height) * PI * -4);
-	
+
   // DrawBlock the color cube:
 
   scale(width/4);
-  if(keyPressed) {
+  /*
+   *
+   * key functions:
+   * UP    -> increase the number of blocks with 1
+   *          with a maximum of 16 blocks
+   * DOWN  -> decrease the number of blocks with 1
+   *          with a maximum of 2 blocks
+   * LEFT  -> decrease the size of a block
+   *          smallest value will be shown as a point
+   * RIGHT -> increase the size of a block
+   *          highest value shows no space between blocks
+   *
+   */
+  
+  if (keyPressed) {
     if (key == CODED) {
       if (keyCode == UP && axisBlocks < 16) {
         axisBlocks += 1;
@@ -62,22 +76,30 @@ void draw() {
       if (keyCode == DOWN && axisBlocks > 2) {
         axisBlocks -= 1;
       }
-      if (keyCode == LEFT && disBlocks > 0 ) {
-        disBlocks -= 0.02;
+      if (keyCode == LEFT && wBlock > 0.02 ) {
+        wBlock -= 0.02;
       }
-      /* 
-       * chose .98 because of a strange error.
-       * If wBlock doesnt start as one from the beginning it will count untill 1.02
-       * Hence the choice 0.98
-       */
-      if (keyCode == RIGHT && disBlocks < .98) {
-        disBlocks += 0.02;
+      if (keyCode == RIGHT && wBlock < (2/axisBlocks)) {
+        wBlock += 0.02;
       }
     }
   }
-  float firstTrans;
-  firstTrans = -0.5 - (disBlocks * 0.5);
-  translate(firstTrans * (axisBlocks-1), firstTrans * (axisBlocks-1), firstTrans * (axisBlocks-1));
+
+  float disBlocks = 2/axisBlocks - wBlock;
+  
+  //if the blocks are larger then they should be the size 
+  //will be brought down to their maximum value
+  if(disBlocks < 0){
+    wBlock = 2/axisBlocks;
+    disBlocks = 2/axisBlocks - wBlock;
+  }
+  
+  
+  //The first translation to center the whole cube as good as possible
+  float firstTrans = -.5 - (0.03*(axisBlocks-2));
+  translate(firstTrans, firstTrans, -.5);
+  
+  //Draw the cube
   drawRGBCube(disBlocks, axisBlocks, wBlock);
 
   // Get original viewBlock matrix:
@@ -86,68 +108,31 @@ void draw() {
 
 
 /* DrawBlock the color cube */
-void drawRGBCube(float disBlocks, int axisBlocks, float wBlock) {
-  // Your implementation comes here.
+void drawRGBCube(float disBlocks, float axisBlocks, float wBlock) {
   float yTrans = 0;
   float xTrans = 0;
   float zTrans = 0;
 
-  for(int i = 0; i < axisBlocks; i++){
-    if(i > 0){
+  //Draw each individual cube row by row
+  for (int i = 0; i < axisBlocks; i++) {
+    if (i > 0) {
       xTrans = xTrans + wBlock + disBlocks;
     }
-    for(int j = 0; j < axisBlocks; j++){
-      if(j > 0){
+    for (int j = 0; j < axisBlocks; j++) {
+      if (j > 0) {
         yTrans = yTrans + wBlock + disBlocks;
       }
-      for(int k = 0; k < axisBlocks; k++){
-        if(k > 0){
+      for (int k = 0; k < axisBlocks; k++) {
+        if (k > 0) {
           zTrans = zTrans + wBlock + disBlocks;
         }
-        translate(xTrans,yTrans,zTrans);
-        fill(xTrans,yTrans,zTrans);
+        translate(xTrans, yTrans, zTrans);
+        fill(xTrans, yTrans, zTrans);
         box(wBlock); // Red
-        translate(-xTrans,-yTrans,-zTrans);
+        translate(-xTrans, -yTrans, -zTrans);
       }
       zTrans = 0;
     }
     yTrans = 0;
   }
-  
-  /*
-  fill(0,0,0);
-  box(wBlock); // Black 
-        
-  translate(1,0,0);
-  fill(1,0,0);
-  box(wBlock); // Red
-  
-  translate(0,1,0);
-  fill(1, 1, 0);
-  box(wBlock);
-  
-  translate(-1, 0, 0);
-  fill(0,1,0);
-  box(wBlock);
-  
-  translate(0,0,1);
-  fill(0,1,1);
-  box(wBlock);
-  
-  translate(1,0,0);
-  fill(1,1,1);
-  box(wBlock);
-  
-  translate(0,-1,0);
-  fill(1,0,1);
-  box(wBlock);
-  
-  translate(-1,0,0);
-  fill(0,0,1);
-  box(wBlock);
-  
-  */
-  
 }
-
-
