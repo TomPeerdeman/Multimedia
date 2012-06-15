@@ -25,12 +25,20 @@
 float wBlock = 0.2;
 int axisBlocks = 2;
 
+PImage RGBImage;
+int[] RGBHist = new int[8192];
+int histMax = 0;
+
 /* Setup function: */
 void setup() {
-  size(400, 400, P3D);	// Set output wBlockindowBlock size.
+  size(400, 800, P3D);	// Set output wBlockindowBlock size.
   colorMode(RGB, 1.0);	// Set color mode.
   frameRate(50);        // Set framerate.
   noStroke();		// Don't drawBlock lines.
+  
+  
+  RGBImage = loadImage("oranje.jpg"); //load the image
+  buildHistogram();
 }
 
 
@@ -40,11 +48,12 @@ void draw() {
   // Make background dark gray:
   background(0.3, 0.3, 0.3);
 
+  image(RGBImage, 200 - RGBImage.width / 2, 600 - RGBImage.height / 2);
   // Save current viewBlock matrix:
   pushMatrix();
 
   // Translate histogram into the correct position:
-  translate(width/2, height/2, -30);
+  translate(width/2, height/4, -30);
 
   // Rotate the histogram depending on the mouse position:
   rotateY(mouseX/float(width) * PI * 4);
@@ -68,9 +77,11 @@ void draw() {
     if (key == CODED) {
       if (keyCode == UP && axisBlocks < 16) {
         axisBlocks += 1;
+        buildHistogram();
       }
       if (keyCode == DOWN && axisBlocks > 2) {
         axisBlocks -= 1;
+        buildHistogram();
       }
       if (keyCode == LEFT && wBlock > 0.04 ) {
         wBlock -= 0.02;
@@ -95,7 +106,7 @@ void draw() {
   scale((float) width / (2 + 2 * axisBlocks));
   translate(Centre , Centre, Centre);
  
-  //Draw the cube
+  //Draw the RGB cube of the image
   drawRGBCube(disBlocks, axisBlocks, wBlock);
 
   // Get original viewBlock matrix:
@@ -108,10 +119,10 @@ void drawRGBCube(float disBlocks, int axisBlocks, float wBlock) {
 float x = 0;
 float y = 0;
 float z = 0;
-  //Draw each individual cube row by row
+  //Draw each individual cube containing the value of that color in the image
   for (int i = 0; i < axisBlocks; i++) {
     if (i > 0) {
-      x = x + wBlock + disBlocks;
+      z = z + wBlock + disBlocks;
     }
     for (int j = 0; j < axisBlocks; j++) {
       if (j > 0) {
@@ -119,16 +130,45 @@ float z = 0;
       }
       for (int k = 0; k < axisBlocks; k++) {
         if (k > 0) {
-          z = z + wBlock + disBlocks;
+          x = x + wBlock + disBlocks;
         }
         fill(x, y, z);
-        box(wBlock);
-        translate(0, 0, 1);
+        box(wBlock * RGBHist[axisBlocks * axisBlocks * i + axisBlocks * j + k]/histMax);
+        translate(1, 0, 0);
       }
-      z = 0;
-      translate(0, 1, -axisBlocks);
+      x = 0;
+      translate(-axisBlocks, 1, 0);
     }
     y = 0;
-    translate(1, -axisBlocks, 0);
+    translate(0, -axisBlocks, 1);
+  }
+}
+
+void buildHistogram(){
+  for (int i = 0; i < 8192; i++){
+    RGBHist[i] = 0;
+  }
+  histMax = 0;
+  int RGBcolor, n, x, y, z;
+  
+  RGBImage.loadPixels();
+  
+  for (int i = 0; i < RGBImage.height; i++){
+    for (int j = 0; j < RGBImage.width; j++){
+      RGBcolor = RGBImage.pixels[RGBImage.width * i + j];
+      x =  (int)(red(RGBcolor) * axisBlocks);
+      y =  (int)(green(RGBcolor) * axisBlocks);
+      z =  (int)(blue(RGBcolor) * axisBlocks);
+      if (x == axisBlocks)
+        x = axisBlocks - 1;
+      if (y == axisBlocks)
+        y = axisBlocks - 1;
+      if (z == axisBlocks)
+        z = axisBlocks - 1;
+      n = (int) (axisBlocks*axisBlocks*z + axisBlocks*y + x);
+      RGBHist[n]++;
+      if (RGBHist[n] > histMax)
+        histMax = RGBHist[n];
+    }
   }
 }
