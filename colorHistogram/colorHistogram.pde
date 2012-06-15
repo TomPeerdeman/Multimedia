@@ -26,7 +26,7 @@ float wBlock = 0.2;
 int axisBlocks = 2;
 
 PImage RGBImage;
-int[] RGBHist = new int[8192];
+int[] RGBHist = new int[4096];
 int histMax = 0;
 
 /* Setup function: */
@@ -144,8 +144,9 @@ float z = 0;
   }
 }
 
+// Filling the histogram array
 void buildHistogram(){
-  for (int i = 0; i < 8192; i++){
+  for (int i = 0; i < 4096; i++){
     RGBHist[i] = 0;
   }
   histMax = 0;
@@ -167,6 +168,8 @@ void buildHistogram(){
         z = axisBlocks - 1;
       n = (int) (axisBlocks*axisBlocks*z + axisBlocks*y + x);
       RGBHist[n]++;
+      
+      //The maximum value should be remembered to ensure blocks wont overlap
       if (RGBHist[n] > histMax)
         histMax = RGBHist[n];
     }
