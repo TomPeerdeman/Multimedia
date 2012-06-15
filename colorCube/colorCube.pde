@@ -105,30 +105,16 @@ void draw() {
 
 /* DrawBlock the color cube */
 void drawRGBCube(float disBlocks, int axisBlocks, float wBlock) {
-float x = 0;
-float y = 0;
-float z = 0;
-  //Draw each individual cube row by row
+  //Draw each individual cube containing the value of that color in the image
   for (int i = 0; i < axisBlocks; i++) {
-    if (i > 0) {
-      x = x + wBlock + disBlocks;
-    }
     for (int j = 0; j < axisBlocks; j++) {
-      if (j > 0) {
-        y = y + wBlock + disBlocks;
-      }
       for (int k = 0; k < axisBlocks; k++) {
-        if (k > 0) {
-          z = z + wBlock + disBlocks;
-        }
-        fill(x, y, z);
+        fill((float) k / axisBlocks, (float) j / axisBlocks, (float) i / axisBlocks);
         box(wBlock);
         translate(0, 0, 1);
       }
-      z = 0;
       translate(0, 1, -axisBlocks);
     }
-    y = 0;
     translate(1, -axisBlocks, 0);
   }
 }

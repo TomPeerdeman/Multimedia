@@ -116,30 +116,16 @@ void draw() {
 
 /* DrawBlock the color cube */
 void drawRGBCube(float disBlocks, int axisBlocks, float wBlock) {
-float x = 0;
-float y = 0;
-float z = 0;
   //Draw each individual cube containing the value of that color in the image
   for (int i = 0; i < axisBlocks; i++) {
-    if (i > 0) {
-      z = z + wBlock + disBlocks;
-    }
     for (int j = 0; j < axisBlocks; j++) {
-      if (j > 0) {
-        y = y + wBlock + disBlocks;
-      }
       for (int k = 0; k < axisBlocks; k++) {
-        if (k > 0) {
-          x = x + wBlock + disBlocks;
-        }
-        fill(x, y, z);
+        fill((float) k / axisBlocks, (float) j / axisBlocks, (float) i / axisBlocks);
         box(wBlock * RGBHist[axisBlocks * axisBlocks * i + axisBlocks * j + k]/histMax);
         translate(1, 0, 0);
       }
-      x = 0;
       translate(-axisBlocks, 1, 0);
     }
-    y = 0;
     translate(0, -axisBlocks, 1);
   }
 }
@@ -150,23 +136,23 @@ void buildHistogram(){
     RGBHist[i] = 0;
   }
   histMax = 0;
-  int RGBcolor, n, x, y, z;
+  int RGBcolor, n, histRed, histGreen, histBlue;
   
   RGBImage.loadPixels();
   
   for (int i = 0; i < RGBImage.height; i++){
     for (int j = 0; j < RGBImage.width; j++){
       RGBcolor = RGBImage.pixels[RGBImage.width * i + j];
-      x =  (int)(red(RGBcolor) * axisBlocks);
-      y =  (int)(green(RGBcolor) * axisBlocks);
-      z =  (int)(blue(RGBcolor) * axisBlocks);
-      if (x == axisBlocks)
-        x = axisBlocks - 1;
-      if (y == axisBlocks)
-        y = axisBlocks - 1;
-      if (z == axisBlocks)
-        z = axisBlocks - 1;
-      n = (int) (axisBlocks*axisBlocks*z + axisBlocks*y + x);
+      histRed =  (int)(red(RGBcolor) * axisBlocks);
+      histGreen =  (int)(green(RGBcolor) * axisBlocks);
+      histBlue =  (int)(blue(RGBcolor) * axisBlocks);
+      if (histRed == axisBlocks)
+        histRed = axisBlocks - 1;
+      if (histGreen == axisBlocks)
+        histGreen = axisBlocks - 1;
+      if (histBlue == axisBlocks)
+        histBlue = axisBlocks - 1;
+      n = (int) (axisBlocks*axisBlocks*histBlue + axisBlocks*histGreen + histRed);
       RGBHist[n]++;
       
       //The maximum value should be remembered to ensure blocks wont overlap
