@@ -5,6 +5,7 @@ public class Turtle implements Cloneable{
 	private float lineWeight;
 	private int angle;
 	private int defaultAngle;
+	private boolean inPolygon;
 	
 	private Turtle(float length, int defAngle, float weight, int posX, 
 		int posY, int angle){
@@ -14,6 +15,7 @@ public class Turtle implements Cloneable{
 		turtleX = posX;
 		turtleY = posY; 
 		this.angle = angle;
+		inPolygon = false;
 	}
 	
 	public Turtle(float length, int angle, float weight){
@@ -23,9 +25,11 @@ public class Turtle implements Cloneable{
 		turtleX = 0;
 		turtleY = 0; 
 		this.angle = 90;
+		inPolygon = false;
 	}
 	
 	public Object clone(){
+		// Use the private constructor to make a copy of this object.
 		return new Turtle(lineLength, defaultAngle, lineWeight, turtleX, 
 			turtleY, angle);
 	}
@@ -65,6 +69,10 @@ public class Turtle implements Cloneable{
 	}
 	
 	public void drawLine(PApplet draw){
+		if(inPolygon){
+			vertexP(draw);
+			return;
+		}
 		int toY = getEndY();
 		int toX = getEndX();
 		draw.line(turtleX, turtleY, toX, toY);
@@ -87,5 +95,21 @@ public class Turtle implements Cloneable{
 	
 	public void update(PApplet draw){
 		draw.strokeWeight(lineWeight);
+	}
+	
+	public void beginP(PApplet draw){
+		draw.beginShape();
+		inPolygon = true;
+	}
+	
+	private void vertexP(PApplet draw){
+		turtleX = getEndX();
+		turtleY = getEndY();
+		draw.vertex(turtleX, turtleY);
+	}
+	
+	public void endP(PApplet draw){
+		draw.endShape(draw.CLOSE);
+		inPolygon = false;
 	}
 }

@@ -8,7 +8,9 @@ private LinkedList<Turtle> stack;
 
 public void setup(){
 	size(400, 400, OPENGL);
-	drawLString("+\"(0.5)f'(2)-F-F-F-F[-ffF-F-F-F][f-f\"(0.5)f'(2)-(45)F-F-F-F]--ff+f\"(0.5)f'(2)+(135)F-F-F-F", 100f, 90, 2);
+	// Use low framerate, the drawn image will be constant anyway.
+	frameRate(1);
+	drawLString("+\"(0.5)f'(2)-{-\"(0.5)f'(2)++(60)F-(60)F-(60)F-(60)F-(60)F-(60)F}F-F-F-F[-ffF-F-F-F][f-f\"(0.5)f'(2)-(45)F-F-F-F][--ff+f\"(0.5)f'(2)+(135)F-F-F-F]-fff-\"(0.5)f'(2)-{+(60)F-(60)F-(60)F-(60)F-(60)F-(60)F}FFF", 100f, 90, 2);
 }
 
 public void drawLString(String lstr, float length, int angle, float thickness){	
@@ -17,7 +19,7 @@ public void drawLString(String lstr, float length, int angle, float thickness){
 	actions = new LinkedList<TurtleAction> ();
 	stack = new LinkedList<Turtle> ();
 	
-	// Loop trough chars, insert Actions in linkedlist
+	// Loop trough chars, insert actions in linkedlist
 	for(int i = 0; i < str.length(); i++){
 		switch(str.charAt(i)){
 			case 'f':
@@ -45,10 +47,12 @@ public void drawLString(String lstr, float length, int angle, float thickness){
 				actions.addFirst(new TurtleAction(TurtleAction.POP));
 				break;	
 			case '{':
+				actions.addFirst(new TurtleAction(TurtleAction.PUSH));
 				actions.addFirst(new TurtleAction(TurtleAction.BEGINP));
 				break;				
 			case '}':
 				actions.addFirst(new TurtleAction(TurtleAction.ENDP));
+				actions.addFirst(new TurtleAction(TurtleAction.POP));
 				break;	
 			case '(':
 				if(str.indexOf(")", i) > 0){
@@ -115,6 +119,11 @@ public void draw(){
 					popTurtle();
 					turtle.update(this);
 					break;
+				case TurtleAction.BEGINP:
+					turtle.beginP(this);
+					break;
+				case TurtleAction.ENDP:
+					turtle.endP(this);
 			}
 			actions.addFirst(action);
 		}
@@ -133,7 +142,7 @@ private void popTurtle(){
 
 private void restoreTurtle(){
 	if(stack.size() > 0){
-		// Clone so we dont edit the stack copy each time. Always the last one.
+		// Clone so we dont edit the stack copy each time.
 		turtle = (Turtle) stack.getLast().clone();
 	}
 }
