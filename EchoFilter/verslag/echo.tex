@@ -97,40 +97,40 @@ Op een computer kan dit proces worden nagebootst. Hiertoe moet een echofilter wo
  * Author: Tom Peerdeman
  * Student nr.: 10266186
  *
- * Date: 14/06/2012
+ * Date: 16/06/2012
  *
  */
-
 
 import ddf.minim.*;
 import ddf.minim.effects.*;
 import processing.opengl.*;
 
-Minim minim;
-AudioPlayer player;
-EchoEffect effect;
-ScrollBar delayBar;
-ScrollBar volumeBar;
-float delayPos;
-float volumePos;
+private Minim minim;
+private AudioPlayer player;
+private EchoEffect effect;
+private ScrollBar delayBar;
+private ScrollBar volumeBar;
+private float delayPos;
+private float volumePos;
 
-void setup(){
-  size(200, 100, OPENGL);
-  volumeBar = new ScrollBar(50, 20, 110, 10, 5);
-  delayBar = new ScrollBar(50, 60, 110, 10, 5);
-  
-  minim = new Minim(this);
-  player = minim.loadFile("groove.mp3", 1024);
-  effect = new EchoEffect();
-  player.addEffect(effect);
-  player.loop();
+public void setup(){
+    size(200, 100, OPENGL);
+    volumeBar = new ScrollBar(50, 20, 110, 10, 5);
+    delayBar = new ScrollBar(50, 60, 110, 10, 5);
+    
+    minim = new Minim(this);
+    player = minim.loadFile("groove.mp3", 1024);
+    effect = new EchoEffect();
+    player.addEffect(effect);
+    player.loop();
 }
 
-void draw(){
+public void draw(){
     background(0);
     // Set text color
     fill(0xFF, 0xFF, 0xFF);
-    text("Echo volume ratio: " + floor((volumeBar.getPos() - 50)) / 100f, 50, 40);
+    text("Echo volume ratio: " + floor((volumeBar.getPos() - 50)) / 100f, 50,
+        40);
     text("Delay: " + floor((delayBar.getPos() - 50)) / 10f, 50, 80);
     
     volumeBar.update();
@@ -140,19 +140,19 @@ void draw(){
     
     // Only update the effect if the value of one of the bars has changed.
     if(volumePos != volumeBar.getPos()){
-      volumePos = volumeBar.getPos();
-      effect.setEchoVolume(floor((volumePos - 50)) / 100f);
+        volumePos = volumeBar.getPos();
+        effect.setEchoVolume(floor((volumePos - 50)) / 100f);
     }
     if(delayPos != delayBar.getPos()){
-      delayPos = delayBar.getPos();
-      effect.setDelay(floor((delayPos - 50)) / 10f);
+        delayPos = delayBar.getPos();
+        effect.setDelay(floor((delayPos - 50)) / 10f);
     }
 }
 
-void stop(){
-  player.close();
-  minim.stop();
-  super.stop();
+public void stop(){
+    player.close();
+    minim.stop();
+    super.stop();
 }
 \end{verbatim}
 \newpage
@@ -170,62 +170,61 @@ void stop(){
  * Author: Tom Peerdeman
  * Student nr.: 10266186
  *
- * Date: 14/06/2012
+ * Date: 16/06/2012
  *
  */
 
 class CircularBuffer{
-  float[] buffer;
-  float[] bufferResize;
-  int head;
-  int tail;
-  int fill;
-  
-  CircularBuffer(int initCap){
-    head = 0;
-    tail = 0;
-    fill = 0;
-    buffer = new float[initCap];
-  }
-  
-  boolean addSample(float v){
-      // Buffer full, resize
-      if(fill == buffer.length){
-        bufferResize = new float[buffer.length * 2];
-        if(head == 0){
-          arraycopy(buffer, 0, bufferResize, 0, buffer.length);       
-        }else{
-          arraycopy(buffer, tail, bufferResize, 0, buffer.length - tail);
-          arraycopy(buffer, 0, bufferResize, buffer.length - tail, head);
-        }
-        head = buffer.length;
+    private float[] buffer;
+    private float[] bufferResize;
+    private int head;
+    private int tail;
+    public int fill;
+    
+    public CircularBuffer(int initCap){
+        head = 0;
         tail = 0;
-        buffer = bufferResize;
-        bufferResize = null;
-      }
-      
-      buffer[head++] = v;
-      fill++;
-      head %= buffer.length;
-      return true;
-  }
-  
-  float getSample(){
-     if(fill == 0){
-      return 0f;
-     } 
-     
-     float get = buffer[tail++];
-     tail %= buffer.length;
-     fill--;
-     return get;
-  }
-  
-  void clear(){
-   tail = 0;
-   head = 0; 
-   fill = 0;
-  }
+        fill = 0;
+        buffer = new float[initCap];
+    }
+    
+    public void addSample(float v){
+        // Buffer full, resize
+        if(fill == buffer.length){
+            bufferResize = new float[buffer.length * 2];
+            if(head == 0){
+                arraycopy(buffer, 0, bufferResize, 0, buffer.length);             
+            }else{
+                arraycopy(buffer, tail, bufferResize, 0, buffer.length - tail);
+                arraycopy(buffer, 0, bufferResize, buffer.length - tail, head);
+            }
+            head = buffer.length;
+            tail = 0;
+            buffer = bufferResize;
+            bufferResize = null;
+        }
+        
+        buffer[head++] = v;
+        fill++;
+        head %= buffer.length;
+    }
+    
+    public float getSample(){
+        if(fill == 0){
+            return 0f;
+        } 
+
+        float get = buffer[tail++];
+        tail %= buffer.length;
+        fill--;
+        return get;
+    }
+    
+    public void clear(){
+        tail = 0;
+        head = 0; 
+        fill = 0;
+    }
 }
 \end{verbatim}
 \newpage
@@ -246,72 +245,72 @@ class CircularBuffer{
  * Author: Tom Peerdeman
  * Student nr.: 10266186
  *
- * Date: 14/06/2012
+ * Date: 16/06/2012
  *
  */
 
-class EchoEffect implements AudioEffect{
-  CircularBuffer bufLeft;
-  CircularBuffer bufRight;
-  int delayLength;
-  float echoVolume;
-  float nonEchoVolume;
-  
-  EchoEffect(){
-   // Initialize volume & delay
-   setDelay(0.2f);
-   setEchoVolume(0.3f);
-   
-   // Initialize buffers
-   bufLeft =  new CircularBuffer(delayLength + 1);
-   bufRight =  new CircularBuffer(delayLength + 1);
-  }
-  
-  void setDelay(float delay){
-    delayLength = (int) (44100 * delay);
-    if(bufLeft != null){
-     // Clear required otherwise older data than we want is mixed in.
-     bufLeft.clear();
-     bufRight.clear();
+public class EchoEffect implements AudioEffect{
+    private CircularBuffer bufLeft;
+    private CircularBuffer bufRight;
+    private int delayLength;
+    private float echoVolume;
+    private float nonEchoVolume;
+    
+    public EchoEffect(){
+        // Initialize volume & delay
+        setDelay(0.2f);
+        setEchoVolume(0.3f);
+
+        // Initialize buffers
+        bufLeft =    new CircularBuffer(delayLength + 1);
+        bufRight =    new CircularBuffer(delayLength + 1);
     }
-  }
-  
-  void setEchoVolume(float vol){
-    echoVolume = vol;
-    nonEchoVolume = 1f - vol;
-  }
-   
-  void process(float[] samp){
-    for(int i = 0; i < samp.length; i++){
-      bufLeft.addSample(samp[i]);
-      if(bufLeft.fill >= delayLength){
-        // Buffer full enough, mix it
-        samp[i] = samp[i] * nonEchoVolume;
-        samp[i] += bufLeft.getSample() * echoVolume;
-      }
+    
+    public void setDelay(float delay){
+        delayLength = (int) (44100 * delay);
+        if(bufLeft != null){
+            // Clear required otherwise older data than we want is mixed in.
+            bufLeft.clear();
+            bufRight.clear();
+        }
     }
-  }
-   
-  void process(float[] left, float[] right){
-    for(int i = 0; i < left.length; i++){
-      bufLeft.addSample(left[i]);
-      bufRight.addSample(right[i]);
-      
-      // Buffer full enough, mix it
-      if(bufLeft.fill >= delayLength){
-        left[i] = left[i] * nonEchoVolume;
-        left[i] += bufLeft.getSample() * echoVolume;
-        right[i] = right[i] * nonEchoVolume;
-        right[i] += bufRight.getSample() * echoVolume;
-      }
+    
+    public void setEchoVolume(float vol){
+        echoVolume = vol;
+        nonEchoVolume = 1f - vol;
     }
-  }
-}  
+    
+    public void process(float[] samp){
+        for(int i = 0; i < samp.length; i++){
+            bufLeft.addSample(samp[i]);
+            if(bufLeft.fill >= delayLength){
+                // Buffer full enough, mix it
+                samp[i] = samp[i] * nonEchoVolume;
+                samp[i] += bufLeft.getSample() * echoVolume;
+            }
+        }
+    }
+
+    public void process(float[] left, float[] right){
+        for(int i = 0; i < left.length; i++){
+            bufLeft.addSample(left[i]);
+            bufRight.addSample(right[i]);
+            
+            // Buffer full enough, mix it
+            if(bufLeft.fill >= delayLength){
+                left[i] = left[i] * nonEchoVolume;
+                left[i] += bufLeft.getSample() * echoVolume;
+                right[i] = right[i] * nonEchoVolume;
+                right[i] += bufRight.getSample() * echoVolume;
+            }
+        }
+    }
+}
 	\end{verbatim}
 \newpage
 	\subsection{Scrollbar}
 	\begin{verbatim}
-	/*
+/*
  * File: ScrollBar.pde
  *
  * Source: Processing Examples. Example 'Scrollbar' in category GUI in category Topics
@@ -323,84 +322,79 @@ class EchoEffect implements AudioEffect{
  * Author: Tom Peerdeman
  * Student nr.: 10266186
  *
- * Date: 14/06/2012
+ * Date: 16/06/2012
  *
  */
 
-class ScrollBar{
-  int swidth, sheight;    // width and height of bar
-  int xpos, ypos;         // x and y position of bar
-  float spos, newspos;    // x position of slider
-  int sposMin, sposMax;   // max and min values of slider
-  int loose;              // how loose/heavy
-  boolean over;           // is the mouse over the slider?
-  boolean locked;
-  float ratio;
+public class ScrollBar{
+    private int swidth, sheight;        // width and height of bar
+    private int xpos, ypos;                // x and y position of bar
+    private float spos, newspos;        // x position of slider
+    private int sposMin, sposMax;        // max and min values of slider
+    private int loose;                    // how loose/heavy
+    private boolean over;                // is the mouse over the slider?
+    private boolean locked;
 
-  ScrollBar (int xp, int yp, int sw, int sh, int l){
-    swidth = sw;
-    sheight = sh;
-    int widthtoheight = sw - sh;
-    ratio = (float)sw / (float)widthtoheight;
-    ratio = 1;
-    xpos = xp;
-    ypos = yp-sheight/2;
-    spos = xpos + swidth/2 - sheight/2;
-    newspos = spos;
-    sposMin = xpos;
-    sposMax = xpos + swidth - sheight;
-    loose = l;
-  }
+    public ScrollBar(int xp, int yp, int sw, int sh, int l){
+        swidth = sw;
+        sheight = sh;
+        int widthtoheight = sw - sh;
+        xpos = xp;
+        ypos = yp-sheight/2;
+        spos = xpos + swidth/2 - sheight/2;
+        newspos = spos;
+        sposMin = xpos;
+        sposMax = xpos + swidth - sheight;
+        loose = l;
+    }
 
-  void update(){
-    if(over()) {
-      over = true;
-    } else {
-      over = false;
+    public void update(){
+        if(over()){
+            over = true;
+        }else{
+            over = false;
+        }
+        if(mousePressed && over){
+            locked = true;
+        }
+        if(!mousePressed){
+            locked = false;
+        }
+        if(locked){
+            newspos = constrain(mouseX-sheight/2, sposMin, sposMax);
+        }
+        if(abs(newspos - spos) > 1){
+            spos = spos + (newspos-spos)/loose;
+        }
     }
-    if(mousePressed && over){
-      locked = true;
-    }
-    if(!mousePressed){
-      locked = false;
-    }
-    if(locked){
-      newspos = constrain(mouseX-sheight/2, sposMin, sposMax);
-    }
-    if(abs(newspos - spos) > 1){
-      spos = spos + (newspos-spos)/loose;
-    }
-  }
 
-  int constrain(int val, int minv, int maxv){
-    return min(max(val, minv), maxv);
-  }
-
-  boolean over() {
-    if(mouseX > xpos && mouseX < xpos+swidth &&
-    mouseY > ypos && mouseY < ypos+sheight){
-      return true;
-    } else {
-      return false;
+    private int constrain(int val, int minv, int maxv){
+        return min(max(val, minv), maxv);
     }
-  }
 
-  void display(){
-    fill(255);
-    rect(xpos, ypos, swidth, sheight);
-    if(over || locked) {
-      fill(153, 102, 0);
-    } else {
-      fill(102, 102, 102);
+    private boolean over() {
+        if(mouseX > xpos && mouseX < xpos+swidth
+            && mouseY > ypos && mouseY < ypos+sheight){
+            return true;
+        }else{
+            return false;
+        }
     }
-    rect(spos, ypos, sheight, sheight);
-  }
 
-  float getPos(){
-    // Convert spos to be values between
-    // 0 and the total width of the scrollbar
-    return spos;
-  }
+    public void display(){
+        fill(255);
+        rect(xpos, ypos, swidth, sheight);
+        if(over || locked){
+            fill(153, 102, 0);
+        }else{
+            fill(102, 102, 102);
+        }
+        rect(spos, ypos, sheight, sheight);
+    }
+
+    public float getPos(){
+        return spos;
+    }
 }
 	\end{verbatim}
 
