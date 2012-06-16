@@ -8,7 +8,8 @@ public class TurtleAction{
 	public final static int PUSH = 6;
 	public final static int POP = 7;
 	public final static int BEGINP = 8;
-	public final static int ENDP = 9;
+	public final static int VERTEXP = 9;
+	public final static int ENDP = 10;
 	
 	private int action;
 	private float param;

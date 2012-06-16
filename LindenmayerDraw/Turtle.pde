@@ -69,10 +69,6 @@ public class Turtle implements Cloneable{
 	}
 	
 	public void drawLine(PApplet draw){
-		if(inPolygon){
-			vertexP(draw);
-			return;
-		}
 		int toY = getEndY();
 		int toX = getEndX();
 		draw.line(turtleX, turtleY, toX, toY);
@@ -86,15 +82,18 @@ public class Turtle implements Cloneable{
 	}
 	
 	private int getEndX(){
-		return turtleX + (int) Math.round(Math.cos(Math.toRadians(angle)) * lineLength);
+		return turtleX + 
+			(int) Math.round(Math.cos(Math.toRadians(angle)) * lineLength);
 	}
 	
 	private int getEndY(){
-		return turtleY + (int) Math.round(Math.sin(Math.toRadians(angle)) * lineLength);
+		return turtleY + 
+			(int) Math.round(Math.sin(Math.toRadians(angle)) * lineLength);
 	}
 	
 	public void update(PApplet draw){
-		draw.strokeWeight(lineWeight);
+		endP(draw);
+		draw.strokeWeight(lineWeight);	
 	}
 	
 	public void beginP(PApplet draw){
@@ -102,14 +101,16 @@ public class Turtle implements Cloneable{
 		inPolygon = true;
 	}
 	
-	private void vertexP(PApplet draw){
-		turtleX = getEndX();
-		turtleY = getEndY();
-		draw.vertex(turtleX, turtleY);
+	public void vertexP(PApplet draw){
+		if(inPolygon){
+			draw.vertex(turtleX, turtleY);
+		}
 	}
 	
 	public void endP(PApplet draw){
-		draw.endShape(draw.CLOSE);
-		inPolygon = false;
+		if(inPolygon){
+			draw.endShape(draw.CLOSE);
+			inPolygon = false;
+		}
 	}
 }

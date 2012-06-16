@@ -10,7 +10,15 @@ public void setup(){
 	size(400, 400, OPENGL);
 	// Use low framerate, the drawn image will be constant anyway.
 	frameRate(1);
-	drawLString("+\"(0.5)f'(2)-{-\"(0.5)f'(2)++(60)F-(60)F-(60)F-(60)F-(60)F-(60)F}F-F-F-F[-ffF-F-F-F][f-f\"(0.5)f'(2)-(45)F-F-F-F][--ff+f\"(0.5)f'(2)+(135)F-F-F-F]-fff-\"(0.5)f'(2)-{+(60)F-(60)F-(60)F-(60)F-(60)F-(60)F}FFF", 100f, 90, 2);
+	drawLString("{.+(60)f.-(60)f.-(60)f.-(60)f.-(60)f.-(60)f.}" + 	// Draw bottom polygon
+		"+\"(0.5)f'(2)-" +											// Move so bottom square will be centered
+		"F-F-F-F" +													// Draw bottom square
+		"[-ffF-F-F-F]" +											// Draw top square
+		"[f-f\"(0.5)f'(2)-(45)F-F-F-F]" +							// Draw left tilted square
+		"[--ff+f\"(0.5)f'(2)+(135)F-F-F-F]" + 						// Draw right tilted square
+		"-fff-\"(0.5)f'(2)-" + 										// Move to top center
+		"{.+(60)f.-(60)f.-(60)f.-(60)f.-(60)f.-(60)f.}" +			// Draw top polygon
+		"FFF", 100f, 90, 2);										// Draw center line
 }
 
 public void drawLString(String lstr, float length, int angle, float thickness){	
@@ -49,7 +57,10 @@ public void drawLString(String lstr, float length, int angle, float thickness){
 			case '{':
 				actions.addFirst(new TurtleAction(TurtleAction.PUSH));
 				actions.addFirst(new TurtleAction(TurtleAction.BEGINP));
-				break;				
+				break;	
+			case '.':
+				actions.addFirst(new TurtleAction(TurtleAction.VERTEXP));
+				break;
 			case '}':
 				actions.addFirst(new TurtleAction(TurtleAction.ENDP));
 				actions.addFirst(new TurtleAction(TurtleAction.POP));
@@ -122,9 +133,13 @@ public void draw(){
 				case TurtleAction.BEGINP:
 					turtle.beginP(this);
 					break;
+				case TurtleAction.VERTEXP:
+					turtle.vertexP(this);
+					break;
 				case TurtleAction.ENDP:
 					turtle.endP(this);
 			}
+			// Push the action back into the queue
 			actions.addFirst(action);
 		}
 	}
