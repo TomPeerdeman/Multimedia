@@ -31,7 +31,7 @@ int histMax = 0;
 
 /* Setup function: */
 void setup() {
-  size(400, 800, P3D);	// Set output wBlockindowBlock size.
+  size(500, 900, P3D);	// Set output wBlockindowBlock size.
   colorMode(RGB, 1.0);	// Set color mode.
   frameRate(50);        // Set framerate.
   noStroke();		// Don't drawBlock lines.
@@ -48,7 +48,7 @@ void draw() {
   // Make background dark gray:
   background(0.3, 0.3, 0.3);
 
-  image(RGBImage, 200 - RGBImage.width / 2, 600 - RGBImage.height / 2);
+  image(RGBImage, 250 - RGBImage.width / 2, 650 - RGBImage.height / 2);
   // Save current viewBlock matrix:
   pushMatrix();
 
