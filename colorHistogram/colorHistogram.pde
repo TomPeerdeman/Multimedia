@@ -8,7 +8,7 @@
  * Tom Peerdeman - 10266186
  * René Aparicio Saez - 10214054
  *
- * Datum: ??/06/2012
+ * Datum: 15/06/2012
  *
  * This file contains an implementation of an RGB color cube
  * The cube consists of smaller cubes that contain RGB values
@@ -91,15 +91,6 @@ void draw() {
       }
     }
   }
-
-  float disBlocks = 2/ ((float)axisBlocks) - wBlock;
-  
-  //if the blocks are larger then they should be the size 
-  //will be brought down to their maximum value
-  if(disBlocks < 0){
-    disBlocks = 2/((float)axisBlocks) - wBlock;
-  }
-  
   
   //centering the cube
   float Centre = (float) -(axisBlocks-1) /2;
@@ -107,7 +98,7 @@ void draw() {
   translate(Centre , Centre, Centre);
  
   //Draw the RGB cube of the image
-  drawRGBCube(disBlocks, axisBlocks, wBlock);
+  drawRGBCube(axisBlocks, wBlock);
 
   // Get original viewBlock matrix:
   popMatrix();
@@ -115,7 +106,7 @@ void draw() {
 
 
 /* DrawBlock the color cube */
-void drawRGBCube(float disBlocks, int axisBlocks, float wBlock) {
+void drawRGBCube(int axisBlocks, float wBlock) {
   //Draw each individual cube containing the value of that color in the image
   for (int i = 0; i < axisBlocks; i++) {
     for (int j = 0; j < axisBlocks; j++) {
