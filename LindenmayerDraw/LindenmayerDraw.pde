@@ -5,25 +5,14 @@ private Turtle turtle;
 private StringBuffer str;
 private LinkedList<TurtleAction> actions;
 private LinkedList<Turtle> stack;
+private int nDraw;
 
 public void setup(){
 	size(400, 400, OPENGL);
 	// Use low framerate, the drawn image will be constant anyway.
 	frameRate(1);
-	drawLString("{.+(60)f.-(60)f.-(60)f.-(60)f.-(60)f.-(60)f.}" + 	// Draw bottom polygon
-		"+\"(0.5)f'(2)-" +											// Move so bottom square will be centered
-		"F-F-F-F" +													// Draw bottom square
-		"[-ffF-F-F-F]" +											// Draw top square
-		"[f-f\"(0.5)f'(2)-(45)F-F-F-F]" +							// Draw left tilted square
-		"[--ff+f\"(0.5)f'(2)+(135)F-F-F-F]" + 						// Draw right tilted square
-		"-fff-\"(0.5)f'(2)-" + 										// Move to top center
-		"{.+(60)f.-(60)f.-(60)f.-(60)f.-(60)f.-(60)f.}" +			// Draw top polygon
-		"FFF", 100f, 90, 2);										// Draw center line
-		
-	LSystem lsys = new LSystem();
-	lsys.setAxiom("ABC");
-	lsys.addRule('B', "ABC");
-	println("Out: " + lsys.applyRules(2));
+
+	loadLSystem("plant.lsys");
 }
 
 public void drawLString(String lstr, float length, int angle, float thickness){	
@@ -31,6 +20,7 @@ public void drawLString(String lstr, float length, int angle, float thickness){
 	turtle = new Turtle(length, angle, thickness);
 	actions = new LinkedList<TurtleAction> ();
 	stack = new LinkedList<Turtle> ();
+	nDraw = 1;
 	
 	// Loop trough chars, insert actions in linkedlist
 	for(int i = 0; i < str.length(); i++){
@@ -82,6 +72,10 @@ public void drawLString(String lstr, float length, int angle, float thickness){
 	}
 }
 
+public void setNDraw(int n){
+	nDraw = n;
+}
+
 public void draw(){
 	background(0xFFFFFFFF);
 	
@@ -98,54 +92,56 @@ public void draw(){
 		}
 		
 		// Translate to normal coordinate system
-		translate(200, 350);
+		translate(200, 400);
 		rotateZ(PI);
 		scale(-1, 1);
 		
 		// Set line color to black
 		stroke(0, 0, 0, 255);
 		
-		for(int i = 0; i < actions.size(); i++){
-			TurtleAction action = actions.removeLast();
-			switch(action.getAction()){
-				case TurtleAction.STEP:
-					turtle.step();
-					break;
-				case TurtleAction.STEPDRAW:
-					turtle.drawLine(this);
-					break;
-				case TurtleAction.TURNLEFT:
-					turtle.turnLeft(action.getParam());
-					break;
-				case TurtleAction.TURNRIGHT:
-					turtle.turnRight(action.getParam());
-					break;
-				case TurtleAction.INCREASE:
-					turtle.increase(action.getParam());
-					turtle.update(this);
-					break;
-				case TurtleAction.DECREASE:
-					turtle.decrease(action.getParam());
-					turtle.update(this);
-					break;
-				case TurtleAction.PUSH:
-					pushTurtle();
-					break;
-				case TurtleAction.POP:
-					popTurtle();
-					turtle.update(this);
-					break;
-				case TurtleAction.BEGINP:
-					turtle.beginP(this);
-					break;
-				case TurtleAction.VERTEXP:
-					turtle.vertexP(this);
-					break;
-				case TurtleAction.ENDP:
-					turtle.endP(this);
+		for(int j = 0; j < nDraw; j++){
+			for(int i = 0; i < actions.size(); i++){
+				TurtleAction action = actions.removeLast();
+				switch(action.getAction()){
+					case TurtleAction.STEP:
+						turtle.step();
+						break;
+					case TurtleAction.STEPDRAW:
+						turtle.drawLine(this);
+						break;
+					case TurtleAction.TURNLEFT:
+						turtle.turnLeft(action.getParam());
+						break;
+					case TurtleAction.TURNRIGHT:
+						turtle.turnRight(action.getParam());
+						break;
+					case TurtleAction.INCREASE:
+						turtle.increase(action.getParam());
+						turtle.update(this);
+						break;
+					case TurtleAction.DECREASE:
+						turtle.decrease(action.getParam());
+						turtle.update(this);
+						break;
+					case TurtleAction.PUSH:
+						pushTurtle();
+						break;
+					case TurtleAction.POP:
+						popTurtle();
+						turtle.update(this);
+						break;
+					case TurtleAction.BEGINP:
+						turtle.beginP(this);
+						break;
+					case TurtleAction.VERTEXP:
+						turtle.vertexP(this);
+						break;
+					case TurtleAction.ENDP:
+						turtle.endP(this);
+				}
+				// Push the action back into the queue
+				actions.addFirst(action);
 			}
-			// Push the action back into the queue
-			actions.addFirst(action);
 		}
 	}
 }
@@ -165,4 +161,49 @@ private void restoreTurtle(){
 		// Clone so we dont edit the stack copy each time.
 		turtle = (Turtle) stack.getLast().clone();
 	}
+}
+
+private void loadLSystem(String filePath){
+	String[] lines = loadStrings(filePath);
+	
+	if(lines.length < 8){
+		System.out.println("File parse error: expected at least 8 lines found "
+			+ lines.length);
+		return;
+	}
+	int angle = Integer.parseInt(lines[0]);
+	float length = Float.parseFloat(lines[1]);
+	float weight = Float.parseFloat(lines[2]);
+	int nDraw = Integer.parseInt(lines[3]);
+	int nApply = Integer.parseInt(lines[4]);
+	if(lines[5].length() != 0){
+		System.out.println("File parse error: expected newline found "
+			+ lines[5]);
+		return;
+	}
+	
+	LSystem lsys = new LSystem();
+	
+	int idx = 6;
+	while(lines[idx].length() != 0){
+		String[] split = split(lines[idx], "->");
+		println(split[0] + "->" + split[1]);
+		lsys.addRule(split[0].charAt(0), split[1]);
+		idx++;
+		if(idx >= lines.length){
+			System.out.println("File parse error: expected newline found "
+				+ lines[--idx]);
+			return;
+		}
+	}
+	
+	if(++idx >= lines.length){
+		System.out.println("File parse error: expected axiom found end");
+		return;
+	}
+	
+	lsys.setAxiom(lines[idx]);
+	
+	drawLString(lsys.applyRules(nApply), length, angle, weight);
+	setNDraw(nDraw);
 }
