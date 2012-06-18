@@ -19,6 +19,11 @@ public void setup(){
 		"-fff-\"(0.5)f'(2)-" + 										// Move to top center
 		"{.+(60)f.-(60)f.-(60)f.-(60)f.-(60)f.-(60)f.}" +			// Draw top polygon
 		"FFF", 100f, 90, 2);										// Draw center line
+		
+	LSystem lsys = new LSystem();
+	lsys.setAxiom("ABC");
+	lsys.addRule('B', "ABC");
+	println("Out: " + lsys.applyRules(2));
 }
 
 public void drawLString(String lstr, float length, int angle, float thickness){	
