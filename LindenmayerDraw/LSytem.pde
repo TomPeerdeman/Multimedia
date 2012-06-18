@@ -1,3 +1,17 @@
+/*
+ * File: LSystem.pde
+ *
+ *
+ * Author: René Aparicio Saez
+ * Student nr.: 10214054
+ *
+ * Author: Tom Peerdeman
+ * Student nr.: 10266186
+ *
+ * Date: 18/06/2012
+ *
+ */
+
 public class LSystem{
 	private String[] ruleTable;
 	private String axiom;
@@ -23,9 +37,7 @@ public class LSystem{
 	
 	public void addRule(char cmd, String rule){
 		int idx = hashRule(cmd);
-		System.out.println("Try to add rule " + cmd + "->" + rule + " at " + idx);
 		if(idx >= 0){
-			System.out.println("Add rule " + cmd + "->" + rule + " at " + idx);
 			// Valid character for a rule
 			ruleTable[idx] = rule;
 		}

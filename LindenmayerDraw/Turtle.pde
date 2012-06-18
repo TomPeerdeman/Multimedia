@@ -1,3 +1,17 @@
+/*
+ * File: Turtle.pde
+ *
+ *
+ * Author: René Aparicio Saez
+ * Student nr.: 10214054
+ *
+ * Author: Tom Peerdeman
+ * Student nr.: 10266186
+ *
+ * Date: 18/06/2012
+ *
+ */
+
 public class Turtle implements Cloneable{
 	private int turtleX;
 	private int turtleY;

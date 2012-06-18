@@ -1,3 +1,17 @@
+/*
+ * File: TurtleAction.pde
+ *
+ *
+ * Author: René Aparicio Saez
+ * Student nr.: 10214054
+ *
+ * Author: Tom Peerdeman
+ * Student nr.: 10266186
+ *
+ * Date: 18/06/2012
+ *
+ */
+
 public class TurtleAction{
 	public final static int STEP = 0;
 	public final static int STEPDRAW = 1;

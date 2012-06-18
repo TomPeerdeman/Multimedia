@@ -1,3 +1,17 @@
+/*
+ * File: LindenmayerDraw.pde
+ *
+ *
+ * Author: René Aparicio Saez
+ * Student nr.: 10214054
+ *
+ * Author: Tom Peerdeman
+ * Student nr.: 10266186
+ *
+ * Date: 18/06/2012
+ *
+ */
+
 import processing.opengl.*;
 import java.util.LinkedList;
 
@@ -171,11 +185,14 @@ private void loadLSystem(String filePath){
 			+ lines.length);
 		return;
 	}
+	
+	// Parse constants
 	int angle = Integer.parseInt(lines[0]);
 	float length = Float.parseFloat(lines[1]);
 	float weight = Float.parseFloat(lines[2]);
 	int nDraw = Integer.parseInt(lines[3]);
 	int nApply = Integer.parseInt(lines[4]);
+	
 	if(lines[5].length() != 0){
 		System.out.println("File parse error: expected newline found "
 			+ lines[5]);
@@ -184,10 +201,10 @@ private void loadLSystem(String filePath){
 	
 	LSystem lsys = new LSystem();
 	
+	// Parse rules
 	int idx = 6;
 	while(lines[idx].length() != 0){
 		String[] split = split(lines[idx], "->");
-		println(split[0] + "->" + split[1]);
 		lsys.addRule(split[0].charAt(0), split[1]);
 		idx++;
 		if(idx >= lines.length){
@@ -204,6 +221,7 @@ private void loadLSystem(String filePath){
 	
 	lsys.setAxiom(lines[idx]);
 	
+	// Draw the LSystem
 	drawLString(lsys.applyRules(nApply), length, angle, weight);
 	setNDraw(nDraw);
 }
