@@ -6,7 +6,6 @@ import android.graphics.Paint;
 import uvamult.assignment2.R;
 import android.hardware.Camera.Size;
 import assignment2.android.CameraView;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
@@ -106,9 +105,14 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		irgb[1] = Math.abs(g(rgbHigh) - g(rgbLow));
 		irgb[2] = Math.abs(b(rgbHigh) - b(rgbLow));
 		
-		irgb[0] *= dist;
-		irgb[1] *= dist;
-		irgb[2] *= dist;
+		if(r(rgbHigh) < r(rgbLow))irgb[0] *= (1d - dist);
+		else irgb[0] *= dist;
+		
+		if(g(rgbHigh) < g(rgbLow))irgb[1] *= (1d - dist);
+		else irgb[1] *= dist;
+		
+		if(b(rgbHigh) < b(rgbLow))irgb[2] *= (1d - dist);
+		else irgb[2] *= dist;
 		
 		irgb[0] += Math.min(r(rgbHigh), r(rgbLow));
 		irgb[1] += Math.min(g(rgbHigh), g(rgbLow));
@@ -143,9 +147,14 @@ public class DrawCamera implements SeekBar.OnSeekBarChangeListener{
 		irgb[1] = Math.abs(rgbHigh[1] - rgbLow[1]);
 		irgb[2] = Math.abs(rgbHigh[2] - rgbLow[2]);
 		
-		irgb[0] *= dist;
-		irgb[1] *= dist;
-		irgb[2] *= dist;
+		if(rgbHigh[0] < rgbLow[0])irgb[0] *= (1d - dist);
+		else irgb[0] *= dist;
+		
+		if(rgbHigh[1] < rgbLow[1])irgb[1] *= (1d - dist);
+		else irgb[1] *= dist;
+		
+		if(rgbHigh[2] < rgbLow[2])irgb[2] *= (1d - dist);
+		else irgb[2] *= dist;
 		
 		irgb[0] += Math.min(rgbHigh[0], rgbLow[0]);
 		irgb[1] += Math.min(rgbHigh[1], rgbLow[1]);
